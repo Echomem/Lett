@@ -1,0 +1,5 @@
+// first program.
+// input `lett 1-Helloworld.let` to run with cmd.
+fn main() {
+    println("Hello world");
+}

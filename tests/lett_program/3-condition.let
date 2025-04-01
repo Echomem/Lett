@@ -1,0 +1,10 @@
+// if-condition statement.
+
+fn main() {
+    x = 10;
+    if (x > 10) {
+        println("x more than 10");
+    } else {
+        println("x less than or equal 10");
+    }
+}
