@@ -1,2 +1,0 @@
-C:\PROGRA~1\mingw64\bin\ar.exe qc ..\..\lib\liblettcomm.a CMakeFiles/lettcomm.dir/lib.cpp.obj
-C:\PROGRA~1\mingw64\bin\ranlib.exe ..\..\lib\liblettcomm.a
