@@ -1,0 +1,15 @@
+// use recursive function to calculate fabonacci
+import sys;
+
+fn fabonacci(n:int):int {
+    if (n <= 1) {
+        return n;
+    }
+    return fabonacci(n-1) + fabonacci(n-2);
+}
+
+fn main() {
+    var n:int = 100;
+    fab = fabonacci(n);
+    sys.println(fab);
+}

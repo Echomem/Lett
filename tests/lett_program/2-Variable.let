@@ -1,8 +1,12 @@
+/*
+ muilt lines remarks..
+ */
 // define variable.
+import sys;
 
 fn main() {
-    a = 10;
-    b = 11;
-    c = a + b;
-    println(c);
+    var a:int = 10;
+    var b:int = 11;
+    var c:int = a + b;
+    sys.println(c);
 }

@@ -1,10 +1,11 @@
 // if-condition statement.
+import sys;
 
 fn main() {
-    x = 10;
+    var x:int = 10;
     if (x > 10) {
-        println("x more than 10");
+        sys.println("x more than 10");
     } else {
-        println("x less than or equal 10");
+        sys.println("x less than or equal 10");
     }
 }
