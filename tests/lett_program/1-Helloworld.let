@@ -1,7 +1,0 @@
-// first program.
-// input `lett 1-Helloworld.let` to run with cmd.
-import sys;
-
-fn main() {
-    sys.println("Hello world");
-}

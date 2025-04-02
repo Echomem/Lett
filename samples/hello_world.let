@@ -1,0 +1,12 @@
+/*
+ * Multi-line comments.
+ * Example 1: 
+ *   Hello world.
+ * use `lett hello_world.let` to compile this program.
+ * Then use `lettc hello_world` to run.
+ */
+import sys;
+
+fn main() {
+    sys.println("Hello world"); // single line comment.
+}

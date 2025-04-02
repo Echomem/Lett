@@ -1,0 +1,16 @@
+/*
+ * Example 4:
+ *   This example demonstrating how to use the `if - elif - else` statement judges positive and negative numbers.
+ */
+import sys;
+
+fn main() {
+    var x:int = 11;
+    if (x > 0) {
+        sys.println("x is a positive number.");
+    } elif (x < 0) {
+        sys.println("x is a negative number.");
+    } else {
+        sys.println("x equal 0");
+    }
+}

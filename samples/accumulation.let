@@ -1,0 +1,15 @@
+/*
+ * Example 5:
+ *   Shows how to use a 'while' loop by calculating the accumulation of numbers between 1 and 100.
+ */
+import sys;
+
+fn main() {
+    var i:int = 1;
+    var sum:int = 0;
+    while (i <= 100) {
+        sum = sum + i;
+        i++;
+    }
+    sys.println(sum);
+}

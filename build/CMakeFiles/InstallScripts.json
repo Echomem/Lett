@@ -1,0 +1,10 @@
+{
+	"InstallScripts" : 
+	[
+		"D:/Projects/C++/Lett/build/cmake_install.cmake",
+		"D:/Projects/C++/Lett/build/src/lib/cmake_install.cmake",
+		"D:/Projects/C++/Lett/build/src/compiler/cmake_install.cmake",
+		"D:/Projects/C++/Lett/build/src/vm/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

@@ -1,9 +1,0 @@
-import sys;
-
-fn main() {
-    var sum:int = 0;
-    for(var i:int=0; i<=100; i++) {
-        sum += i;
-    }
-    sys.println(sum);
-}

@@ -1,0 +1,15 @@
+/* 
+ * Example 3:
+ *   This demonstrates how to use the `if-else` statement through an example of determining odd and even numbers.
+ */
+import sys;
+
+fn main() {
+    var x:int;  // define an variable.
+    x = 10;     // assign to an variable.
+    if (x%2 == 0) {
+        sys.println("x is an even number");
+    } else {
+        sys.println("x is an odd number");
+    }
+}

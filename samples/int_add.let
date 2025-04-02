@@ -1,0 +1,12 @@
+/*
+ * Example 2:
+ *   Show you how to define and use variables through an addition calculation.
+ */
+import sys;
+
+fn main() {
+    var a:int = 10;     // declare variable and assign it.
+    var b:int = 11;
+    var c:int = a + b;
+    sys.println(c);
+}

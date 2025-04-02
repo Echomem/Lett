@@ -1,0 +1,13 @@
+/*
+ * Example 6:
+ *   Another way to calculate the sum of numbers between 1 and 100 shows how to use the 'for' loop
+ */
+import sys;
+
+fn main() {
+    var sum:int = 0;
+    for(var i:int=1; i<=100; i++) {
+        sum += i;
+    }
+    sys.println(sum);
+}
