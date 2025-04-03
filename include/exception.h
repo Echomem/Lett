@@ -1,18 +1,24 @@
 #ifndef __LETT_EXCEPTION_H__
 #define __LETT_EXCEPTION_H__
 #include <exception>
+#include <string>
 
 namespace Lett {
 
     // Base Exception class for Lett
     class LettException : public std::exception {
+    protected:
+        std::string _msg;
     public:
-        explicit LettException(const char* message) : _msg(message) {}
-        virtual const char* what() const noexcept override {
-            return _msg;
+        LettException(const std::string& msg) : _msg(msg) {} 
+        const char* what() const noexcept override {
+            return _msg.c_str();
         }
-    private:
-        const char* _msg;
+    };
+
+    class FileNotExsit : public LettException {
+    public:
+        FileNotExsit(const std::string& fileName);
     };
 
 }   // namespace Lett
