@@ -5,7 +5,7 @@
 
 namespace Lett {
 
-    // Base Exception class for Lett
+    // Lett自定义异常基类
     class LettException : public std::exception {
     protected:
         std::string _msg;
@@ -16,9 +16,17 @@ namespace Lett {
         }
     };
 
+    // 文件不存在异常类
     class FileNotExsit : public LettException {
     public:
         FileNotExsit(const std::string& fileName);
+    };
+
+    // 参数异常类
+    // 用于函数参数不合法的情况
+    class InvalidArgument : public LettException {
+    public:
+        InvalidArgument(const std::string &arg_name, const std::string& msg);
     };
 
 }   // namespace Lett
