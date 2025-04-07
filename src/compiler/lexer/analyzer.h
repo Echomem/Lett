@@ -52,6 +52,15 @@ namespace Lett {
         
         // 静态互斥锁，用于线程安全
         static std::mutex _mutex;
+        
+        // 源代码读取器
+        Reader *_reader;
+
+        // 词法单元列表
+        std::vector<Token> _tokens;
+
+        // 词法分析器的当前状态
+        LexerState _state;
     protected:
         // 将LEXER_VISIBLE_CHARS定义的可见字符转换成字符串
         std::string lexerVisibleChars;
@@ -75,10 +84,6 @@ namespace Lett {
 
         // 打印解析后的token列表用于测试
         void print();
-    private:
-        Reader *_reader;
-        std::vector<Token> _tokens; // 词法单元列表
-        LexerState _state; // 当前状态
     };
 } // namespace Lett
 
