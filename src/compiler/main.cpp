@@ -19,7 +19,7 @@ int main(int argc, char* argv[]) {
         // 创建文件读取器
         Lett::FileReader reader(argv[1]);
         // 创建词法分析器
-        Lett::LexicalAnalyzer analyzer(&reader);
+        Lett::LexicalAnalyzer& analyzer = Lett::LexicalAnalyzer::getInstance(&reader);
         // 扫描文件，生成词法单元
         analyzer.analyze();
 
