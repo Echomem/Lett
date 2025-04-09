@@ -21,6 +21,11 @@ namespace Lett {
         // 获取当前行号和列号
         virtual size_t getLine() = 0;   // 获取当前行号
         virtual size_t getColumn() = 0; // 获取当前列号
+
+        static bool filter(int ch) {
+            // 过滤掉非需要的字符
+            return (ch >= 0x20 && ch <= 0x7E) || (ch >= 0xA0 && ch <= 0xFF) || ch == 0x0A || ch == 0x09;
+        }
     };
 
     // 字符串读取器

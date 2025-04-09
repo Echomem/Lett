@@ -67,6 +67,8 @@ namespace Lett {
 
     class Token {
     public:
+        // 判断字符串是否是关键字
+        static bool isKeyWord(const std::string &str); 
         // 尝试从单字符构造Token,如果失败则返回UNKNOWN类型
         Token(const char ch, size_t line, size_t column); 
         // 尝试从单字符构造Token,如果失败则返回UNKNOWN类型

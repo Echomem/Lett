@@ -102,6 +102,11 @@ namespace Lett {
         {"::",  TokenType::DOUBLE_COLON       },
     };
 
+    bool Token::isKeyWord(const std::string &str) {
+        // TODO: 使用哈希表来查找关键字
+        return false;
+    }
+
     Token::Token(const char ch, size_t line, size_t column) {
         auto it = singleCharTokenType.find(ch);
         if (it != singleCharTokenType.end()) {

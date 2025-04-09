@@ -63,6 +63,14 @@ namespace Lett {
                 stateTable[i][j] = LexerState::Error; // 初始化为错误状态
             }
         }
+
+        // 初始化Ready状态
+        setupStateTransform(LexerState::Ready, LexerState::Ready, " \t\n");
+        setupStateTransform(LexerState::Ready, LexerState::Zero, "0");
+        setupStateTransform(LexerState::Ready, LexerState::DecInt, "123456789");
+        setupStateTransform(LexerState::Ready, LexerState::_Char_S, "'");
+        setupStateTransform(LexerState::Ready, LexerState::_String, "\"");
+        setupStateTransform(LexerState::Ready, LexerState::Ident, "_$abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
     }
 
     LexerState LexicalAnalyzer::getNextState(char ch) {
@@ -87,21 +95,73 @@ namespace Lett {
     /*
      * 词法分析主要实现函数
      */
+    TokenType LexicalAnalyzer::getTokenType() {
+        // TODO: 根据状态返回Token类型
+        return TokenType::UNKNOWN; 
+    }
+
+    bool LexicalAnalyzer::isKeyWord(const std::string &str) const {
+        return Token::isKeyWord(str);
+    }
+
     void LexicalAnalyzer::analyze() {
+        // 读取源代码流，分析词法单元
         char ch;
         std::string value;
-        while (_reader->read(ch)) {
-            // 顺序读取源代码流
-            value.push_back(ch); // 将当前字符添加到值中
-            size_t line = _reader->getLine(); // 获取当前行号
-            size_t column = _reader->getColumn(); // 获取当前列号
-            LexerState next_state = getNextState(ch);
-            if(next_state != _state) {
-                // 状态发生变化，记录当前状态
-                // 根据当前状态建立Token对象
-                _tokens.push_back(Token(TokenType::UNKNOWN, value, line, column));
-                _state = next_state; // 更新当前状态
-                value.clear(); // 清空当前值
+        size_t line = 1, column = 1; // 行号和列号
+        while(true) {
+            if (_state == LexerState::Ready) {
+                // 当前在就绪状态
+                if (_reader->read(ch)) {
+                    LexerState next_state = getNextState(ch);
+                    if (next_state == LexerState::Ready) {
+                        // Ready -> Ready
+                        continue;
+                    }
+                    // Ready -> Error | Other
+                    value.clear();
+                    value += ch;
+                    line = _reader->getLine();
+                    column = _reader->getColumn();
+                    _state = next_state;
+                } else {
+                    break; // 读取到文件结束符，退出循环
+                }
+            } else if (_state == LexerState::Error) {
+                // 当前在错误状态，处理错误
+                _tokens.push_back(Token(TokenType::UNKNOWN,value, line, column));
+                _state = LexerState::Ready;
+            } else {
+                // 当前在其他状态
+                char next_ch;
+                if (_reader->peek(next_ch)) {
+                    LexerState next_state = getNextState(next_ch);
+                    if (next_state == LexerState::Ready) {
+                        TokenType type = getTokenType();
+                        if (_state == LexerState::Ident) {
+                            // 当前在标识符状态，下个状态将是Ready状态，此时查找Hash表确定该Ident是否是Keyword.
+                            if (isKeyWord(value)) {
+                                type = TokenType::KEYWORD;
+                            }
+                        }
+                        _tokens.push_back(Token(type, value, line, column));
+                        _state = LexerState::Ready;
+                    } else if (next_state == LexerState::Error) {
+                        // 处理错误
+                        _tokens.push_back(Token(TokenType::UNKNOWN,value, line, column));
+                        _state = LexerState::Ready;
+                    } else {
+                        _reader->read(ch); // 读取下一个字符
+                        LexerState next_state = getNextState(ch);
+                        value += ch; // 追加当前字符
+                        _state = next_state; // 更新状态
+                    }
+                } else {
+                    // 下个字符是文件结束符
+                    TokenType type = getTokenType();
+                    _tokens.push_back(Token(type, value, line, column));
+                    _state = LexerState::Ready;
+                }
             }
         }
     }

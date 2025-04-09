@@ -51,32 +51,31 @@ namespace Lett {
     }
 
     bool FileReader::read(char &ch) {
-        if (_ifs.get(ch)) {
-            // 如果上个字符是换行符，则行号加1，列号归0
-            if (_ch == '\n') {
-                _line++;
-                _column = 0;
+        while(Reader::filter(ch = _ifs.get())) {
+            if (_ifs.eof()) {
+                _ch = ch;
+                return false;
             }
-            _ch = ch;
-            _column++;
-            return true;
         }
-        return false;
+
+        if (_ch == '\n') {
+            _line++;
+            _column = 0;
+        } 
+        _column++;
+        _ch = ch;
+        return true;
     }
 
     bool FileReader::peek(char &ch, size_t n) {
-        ch = _ch;
-        // 如果上个字符已是结束符，则返回false
-        if (_ch == std::char_traits<char>::eof()) {
-            return false;
-        }
-
         std::streampos currentPos = _ifs.tellg();   // 保存当前的流位置
         for (size_t i=0; i<n; i++) {
-            ch = _ifs.peek();   // 查看下一个字符
-            if (ch == std::char_traits<char>::eof()) {
-                _ifs.seekg(currentPos); // 恢复流位置
-                return false;   // 如果读取到结束符，则返回false
+            while(Reader::filter(ch=_ifs.peek())) {
+                if (_ifs.eof()) {
+                    _ifs.seekg(currentPos); // 恢复流位置
+                    return false;   // 如果读取到结束符，则返回false
+                }
+                _ifs.ignore(1);   // 忽略下一个字符
             }
             _ifs.ignore(1);    // 忽略下一个字符
         }
