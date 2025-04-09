@@ -11,7 +11,7 @@
 #define LEXER_VISIBLE_CHARS  "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_$@#?`.:,;()[]{}+-*/%&|!^~<>=\\'\"\t\n "
 
 // 状态转换表中可接受字符的个数，Unicode字符统一虚拟为其他
-#define LEXER_VISIBLE_CHAR_LEN 97
+#define LEXER_VISIBLE_CHAR_LEN (sizeof(LEXER_VISIBLE_CHARS) - 1)
 #define UNICODE_CHAR_INDEX  (LEXER_VISIBLE_CHAR_LEN + 0)
 #define LEXER_CHARSET_SIZE  (LEXER_VISIBLE_CHAR_LEN + 1)  
 
