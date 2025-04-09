@@ -32,3 +32,15 @@
 
 + 项目词法分析的相关代码位于`src/compiler`目录下。
 + 词法分析器主要是通过类`LexicalAnalyzer`来实现的，该类本质上是一个有限状态机。
+  
+## 词法分析器的状态
+### 数字字面量的识别状态
+![数字字面量的状态](resources/number.png)
+### 字符字面量的识别状态
+![字符字面量的状态](resources/char.png)
+### 字符串字面量的识别状态
+![字符串字面量的状态](resources/string.png)
+### 标志符的识别状态
+![标识符的状态](resources/ident.png)
+### 其他符号的识别状态
+![其他符号的状态](resources/symbol.png)
