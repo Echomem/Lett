@@ -1,6 +1,11 @@
 # build/ directory
 # This file is used to ignore files and directories that should not be tracked by Git.
 build/
+
+# .vscode/ directory
+# This file is used to ignore files and directories that should not be tracked by Git.
+.vscode/
+
 # Prerequisites
 *.d
 

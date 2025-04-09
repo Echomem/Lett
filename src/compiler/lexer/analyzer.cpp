@@ -34,7 +34,29 @@ namespace Lett {
     /* 
      *状态转移表相关的实现
      */
-    void LexicalAnalyzer::initStateTable() {
+    // 设置状态转换表中的转换关系
+    // 当在statrtState状态时，将输入符合charList的字符，全部转换为endState
+    void LexicalAnalyzer::setupStateTransform(LexerState startState, LexerState endState, const char *charList){
+        size_t i = static_cast<size_t>(startState);
+        for (size_t j=0; j<lexerVisibleChars.length(); j++) {
+            for (char ch:std::string(charList)) {
+                if (ch == lexerVisibleChars[j]) {
+                    stateTable[i][j] = endState;
+                }
+            }
+        }
+    }
+
+    // 设置默认状态转移
+    // 当在initState时，将其它未设置的状态全部设置为defaultState
+    void LexicalAnalyzer::setupDefaultStateTransform(LexerState initState, LexerState defaultState) {
+        size_t i = static_cast<size_t>(initState);
+        for (size_t j=0; j<LEXER_CHARSET_SIZE; j++) {
+            stateTable[i][j] = defaultState;
+        }
+    }
+
+     void LexicalAnalyzer::initStateTable() {
         size_t lexer_state_size = static_cast<size_t>(LexerState::Error) + 1;
         for(size_t i=0; i<lexer_state_size; ++i) {
             for(size_t j=0; j<LEXER_CHARSET_SIZE; ++j) {
@@ -48,12 +70,9 @@ namespace Lett {
         // 未找到，返回LexerState::Error
         size_t i = static_cast<size_t>(_state);
         size_t len = lexerVisibleChars.length();
-        if(ch==' '|| ch=='\t') {
-            // 空格及制表符虚拟为可见字符集后的第一项
-            return stateTable[i][BLANK_CHAR_INDEX];
-        } else if (ch == '\n') {
-            // 换行符虚拟为可见字符集后的第二项
-            return stateTable[i][NEWLINE_CHAR_INDEX];
+        if(static_cast<unsigned short>(ch) > 128) {
+            // Unicode字符虚拟为可见字符集后的第一项
+            return stateTable[i][UNICODE_CHAR_INDEX];
         } else {
             // 在可见字符集中查找
             for (size_t j=0; j<len; j++) {

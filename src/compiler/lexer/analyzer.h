@@ -8,31 +8,86 @@
 #include "token.h"
 
 // 列出ASCII表中的可见字符
-#define LEXER_VISIBLE_CHARS  "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_@#$?`,;(){}[]:+-*/%&|!^~<>=\\'\""
+#define LEXER_VISIBLE_CHARS  "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_$@#?`.:,;()[]{}+-*/%&|!^~<>=\\'\"\t\n "
 
-// 状态转换表中可接受字符的个数，包含上述的可见字符，还有下面定义的逻辑虚拟字符
-#define LEXER_VISIBLE_CHAR_LEN 93
-#define BLANK_CHAR_INDEX    (LEXER_VISIBLE_CHAR_LEN + 0)
-#define NEWLINE_CHAR_INDEX  (LEXER_VISIBLE_CHAR_LEN + 1) 
-#define LEXER_CHARSET_SIZE  (LEXER_VISIBLE_CHAR_LEN + 2)  
+// 状态转换表中可接受字符的个数，Unicode字符统一虚拟为其他
+#define LEXER_VISIBLE_CHAR_LEN 97
+#define UNICODE_CHAR_INDEX  (LEXER_VISIBLE_CHAR_LEN + 0)
+#define LEXER_CHARSET_SIZE  (LEXER_VISIBLE_CHAR_LEN + 1)  
 
 namespace Lett {
 
     enum class LexerState {
         Ready,             // 准备状态
-        Ident,             // 标识符状态
-        Number,            // 十进制数字状态
-        HexNumber,         // 十六进制数字状态
-        OctNumber,         // 八进制数字状态
-        BinNumber,         // 二进制数字状态
-        Float,             // 浮点数字状态
-        String,            // 字符串状态
-        Char,              // 字符状态
-        MuiltiComment,     // 多行注释状态
-        SingleComment,     // 单行注释状态
-        Operator,          // 运算符状态
-        Separator,         // 分隔符状态
-        Error              // 错误状态，作为最后一项，不要移动该位置。
+        // 数字字面量识别状态
+        Zero  ,
+        DecInt,
+        HexInt,
+        _Hex  ,
+        OctInt,
+        _Oct  ,
+        BinInt,
+        _Bin  ,
+        Float ,
+        // 字符串字面量识别状态
+        _String     ,
+        String      ,
+        EscString   ,
+        // 字符字面量识别状态
+        _Char_S     ,
+        _Char       ,
+        Char        ,
+        EscChar     ,
+        // 标识符字面量识别状态
+        Ident   ,
+        // 符号是被状态
+        OP_ADD              ,
+        OP_INC              ,
+        OP_ADD_ASSIGN       ,
+        OP_SUB              ,
+        OP_SUB_ASSIGN       ,
+        OP_DEC              ,
+        OP_MUL              ,
+        OP_MUL_ASSIGN       ,
+        OP_DIV              ,
+        OP_DIV_ASSIGN       ,
+        _SINGLINE_COMMENT   ,
+        SINGLINE_COMMENT    ,
+        _MUILTLINE_COMMENT  ,
+        _MUILTLINE_COMMENT_E,
+        MUILTLINE_COMMENT   ,
+        _OP_NOT_EQUAL       ,
+        OP_NOT_EQUAL        ,
+        OP_MOD              ,
+        OP_MOD_ASSIGN       ,
+        OP_ASSIGN           ,
+        OP_EQUAL            ,
+        OP_BIT_AND          ,
+        OP_BIT_AND_ASSIGN   ,
+        OP_AND              ,
+        OP_BIT_OR           ,
+        OP_BIT_OR_ASSIGN    ,
+        OP_OR               ,
+        OP_BIT_NOT          ,
+        OP_BIT_XOR          ,
+        OP_GREAT            ,
+        OP_GREAT_EQUAL      ,
+        OP_LESS             ,
+        OP_LESS_EQUAL       ,
+        OP_BIT_SHIFT_LEFT   ,
+        LEFT_PARENT         ,
+        RIGHT_PARENT        ,
+        LEFT_BRACKET        ,
+        RIGHT_BRACKET       ,
+        LEFT_BRACE          ,
+        RIGHT_BRACE         ,
+        COMMA               ,
+        SEMI_COLON          ,
+        DOT                 ,
+        COLON               ,
+        DOUBLE_COLON        ,
+        // 错误状态，作为最后一项，不要移动该位置
+        Error              
     };
 
     // 词法分析器类，单例模式的类（加入了互斥锁，保证线程安全）
@@ -68,6 +123,14 @@ namespace Lett {
         // 状态转移表，对于当前所处的状态及输入的字符定义了下一个状态。
         // 构造函数中需手工对该状态表进行写入。
         LexerState stateTable[static_cast<size_t>(LexerState::Error) + 1][LEXER_CHARSET_SIZE];
+        
+        // 设置状态转换表中的转换关系
+        // 当在statrtState状态时，将输入符合charList的字符，全部转换为endState
+        void setupStateTransform(LexerState startState, LexerState endState, const char *charList);
+
+        // 设置默认状态转移
+        // 当在initState时，将其它未设置的状态全部设置为defaultState
+        void setupDefaultStateTransform(LexerState initState, LexerState defaultState);
         
         // 初始化状态转移表
         void initStateTable(); 
