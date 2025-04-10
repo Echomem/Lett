@@ -10,7 +10,7 @@ namespace Lett {
         {TokenType::KEYWORD, "KEYWORD"},
         {TokenType::STRING, "STRING"},
         {TokenType::CHAR, "CHAR"},
-        {TokenType::INTEGER, "INTEGER"},
+        {TokenType::DEC_INTEGER, "DEC_INTEGER"},
         {TokenType::HEX_INTEGER, "HEX_INTEGER"},
         {TokenType::OCTAL_INTEGER, "OCTAL_INTEGER"},
         {TokenType::BINARY_INTEGER, "BINARY_INTEGER"},
@@ -57,85 +57,39 @@ namespace Lett {
         {TokenType::UNKNOWN, "UNKNOWN"}
     };
 
-    const static std::unordered_map<char, TokenType> singleCharTokenType = {
-        {'+',  TokenType::OP_ADD             },
-        {'-',  TokenType::OP_SUB             },
-        {'*',  TokenType::OP_MUL             },
-        {'/',  TokenType::OP_DIV             },
-        {'%',  TokenType::OP_MOD             }, 
-        {'&',  TokenType::OP_BIT_AND         }, 
-        {'|',  TokenType::OP_BIT_OR          }, 
-        {'^',  TokenType::OP_BIT_NOT         }, 
-        {'~',  TokenType::OP_BIT_XOR         }, 
-        {'=',  TokenType::OP_ASSIGN          },
-        {'>',  TokenType::OP_GREAT           },
-        {'<',  TokenType::OP_LESS            },
-        {'(',  TokenType::LEFT_PARENT        },
-        {')',  TokenType::RIGHT_PARENT       },
-        {'[',  TokenType::LEFT_BRACKET       },
-        {']',  TokenType::RIGHT_BRACKET      },
-        {'{',  TokenType::LEFT_BRACE         },
-        {'}',  TokenType::RIGHT_BRACE        },
-        {'.',  TokenType::DOT                },
-        {',',  TokenType::COMMA              },
-        {':',  TokenType::COLON              },
-        {';',  TokenType::SEMI_COLON         },
-    };
-
-    const static std::unordered_map<std::string, TokenType> doubleCharTokenType = {
-        {"++",  TokenType::OP_INC             },
-        {"--",  TokenType::OP_DEC             },
-        {"<<",  TokenType::OP_BIT_SHIFT_LEFT  },
-        {">>",  TokenType::OP_BIT_SHIFT_RIGHT },
-        {"+=",  TokenType::OP_ADD_ASSIGN      },
-        {"-=",  TokenType::OP_SUB_ASSIGN      },
-        {"*=",  TokenType::OP_MUL_ASSIGN      },
-        {"/=",  TokenType::OP_DIV_ASSIGN      },
-        {"&=",  TokenType::OP_BIT_AND_ASSIGN  },
-        {"|=",  TokenType::OP_BIT_OR_ASSIGN   },
-        {"==",  TokenType::OP_EQUAL           },
-        {"!=",  TokenType::OP_NOT_EQUAL       },
-        {">=",  TokenType::OP_GREAT_EQUAL     },
-        {"<=",  TokenType::OP_LESS_EQUAL      },
-        {"&&",  TokenType::OP_AND             },
-        {"||",  TokenType::OP_OR              },
-        {"::",  TokenType::DOUBLE_COLON       },
+    const std::unordered_set<std::string> Token::_keyWords = {
+        "import",   "var",      "fn",   "return",   "main",
+        "while",    "do",       "for",  "if",       "elif",
+        "else",     "switch",   "case", "default",  "break",
+        "continue", "void",     "int",  "int8",     "int16",
+        "int32",    "int64",    "uint", "uint8",    "uint16",
+        "uint32",   "uint64",   "float","float32",  "float64",
+        "char",     "string",   "bool", "class",    "public",
+        "protected","private", "interface", "virtual", "super",
+        "this",     "self",     "object"
     };
 
     bool Token::isKeyWord(const std::string &str) {
         // TODO: 使用哈希表来查找关键字
+        auto it = _keyWords.find(str);
+        if (it != _keyWords.end()) {
+            return true;
+        }
         return false;
     }
 
-    Token::Token(const char ch, size_t line, size_t column) {
-        auto it = singleCharTokenType.find(ch);
-        if (it != singleCharTokenType.end()) {
-            _type = it->second;
-        } else {
-            _type = TokenType::UNKNOWN;
-        }
-        _value = std::string(1, ch);
-        _line = line;
-        _column = column;
-    }
-
-    Token::Token(const char ch, const char nextch, size_t line, size_t column) {
-        std::string doubleChar(1, ch);
-        doubleChar += nextch;
-        auto it = doubleCharTokenType.find(doubleChar);
-        if (it != doubleCharTokenType.end()) {
-            _type = it->second;
-        } else {
-            _type = TokenType::UNKNOWN;
-        }
-        _value = doubleChar;
-        _line = line;
-        _column = column;
-    }
-
-    Token::Token(TokenType type, std::string value, size_t line, size_t column)
+    Token::Token(TokenType type, const std::string value, size_t line, size_t column)
         :_type(type), _value(value), _line(line), _column(column) {
             // constructor.
+            if (type == TokenType::IDENTIFIER) {
+                if (value.compare("true")==0 || value.compare("false")==0) {
+                    type = TokenType::BOOL;
+                } else if (Token::isKeyWord(value)) {
+                    type = TokenType::KEYWORD;
+                } else {
+                    type = TokenType::IDENTIFIER;
+                }
+            }
     }
 
     const char *Token::c_str() const {

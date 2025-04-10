@@ -29,6 +29,7 @@ namespace Lett {
 
         initStateTable(); // 初始化状态转移表
         // 以下手工修改初始的状态转移表
+        installStateTransition();
     }
 
     /* 
@@ -52,7 +53,9 @@ namespace Lett {
     void LexicalAnalyzer::setupDefaultStateTransform(LexerState initState, LexerState defaultState) {
         size_t i = static_cast<size_t>(initState);
         for (size_t j=0; j<LEXER_CHARSET_SIZE; j++) {
-            stateTable[i][j] = defaultState;
+            if (stateTable[i][j] != defaultState) {
+                stateTable[i][j] = defaultState;
+            }
         }
     }
 
@@ -63,7 +66,9 @@ namespace Lett {
                 stateTable[i][j] = LexerState::Error; // 初始化为错误状态
             }
         }
+    }
 
+    void LexicalAnalyzer::installStateTransition() {
         // 初始化Ready状态
         setupStateTransform(LexerState::Ready, LexerState::Ready, " \t\n");
         setupStateTransform(LexerState::Ready, LexerState::Zero, "0");
@@ -71,6 +76,8 @@ namespace Lett {
         setupStateTransform(LexerState::Ready, LexerState::_Char_S, "'");
         setupStateTransform(LexerState::Ready, LexerState::_String, "\"");
         setupStateTransform(LexerState::Ready, LexerState::Ident, "_$abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+
+        // TODO: 安装其他关系转换图
     }
 
     LexerState LexicalAnalyzer::getNextState(char ch) {
@@ -98,10 +105,6 @@ namespace Lett {
     TokenType LexicalAnalyzer::getTokenType() {
         // TODO: 根据状态返回Token类型
         return TokenType::UNKNOWN; 
-    }
-
-    bool LexicalAnalyzer::isKeyWord(const std::string &str) const {
-        return Token::isKeyWord(str);
     }
 
     void LexicalAnalyzer::analyze() {
@@ -137,14 +140,11 @@ namespace Lett {
                 if (_reader->peek(next_ch)) {
                     LexerState next_state = getNextState(next_ch);
                     if (next_state == LexerState::Ready) {
-                        TokenType type = getTokenType();
-                        if (_state == LexerState::Ident) {
-                            // 当前在标识符状态，下个状态将是Ready状态，此时查找Hash表确定该Ident是否是Keyword.
-                            if (isKeyWord(value)) {
-                                type = TokenType::KEYWORD;
-                            }
+                        // 如果是单行或多行注释状态，则丢弃不处理
+                        if (!(_state == LexerState::SINGLINE_COMMENT || _state == LexerState::MUILTLINE_COMMENT)) {
+                            TokenType type = getTokenType();
+                            _tokens.push_back(Token(type, value, line, column));
                         }
-                        _tokens.push_back(Token(type, value, line, column));
                         _state = LexerState::Ready;
                     } else if (next_state == LexerState::Error) {
                         // 处理错误

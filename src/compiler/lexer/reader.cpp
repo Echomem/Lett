@@ -12,27 +12,36 @@ namespace Lett {
     }
 
     bool StringReader::read(char &ch) {
-        if (_pos < _str.size() - 1) {
-            ch = _str[++_pos];
-            // 如果上个字符是换行符，则行号加1，列号归0
-            if (_ch == '\n') {
-                _line++;
-                _column = 0;
+        do {
+            if (_pos >= _str.length()){
+                return false;
             }
-            _ch = ch;
+            ch = _str[_pos++];
+        } while (!Reader::isChar(ch));
+        // 如果上个字符是换行符，则行号加1，列号归0
+        if (ch == '\n') {
+            _line++;
+            _column = 0;
+        } else {
             _column++;
-            return true;
         }
-        return false;
+        _ch = ch;
+        return true;
     }
 
     bool StringReader::peek(char &ch, size_t n) {
-        if (_pos + n < _str.size()) {
-            ch = _str[_pos + n];
-            return true;
+        if (n == 0) {
+            return false;
         }
-        ch = std::char_traits<char>::eof(); // 设置为结束符
-        return false;
+        for (size_t i =0; i<n; i++) {
+            do {
+                ch = _str[_pos++];
+                if (_pos >= _str.length()){
+                    return false;
+                }
+            } while (!Reader::isChar(ch));
+        }
+        return true;
     }
 
     std::size_t StringReader::line() const {
@@ -44,9 +53,9 @@ namespace Lett {
     }
 
     FileReader::FileReader(const char *file)
-    :_file(file, std::ios::binary),
-     _line(1), _column(0), 
-     _chunk(CHUNK_SIZE),_chunk_pos(0), _loaded_chunk_size(0), _is_last_chunk(false) {
+        :_file(file, std::ios::binary),
+        _line(1), _column(0), 
+        _chunk(CHUNK_SIZE),_chunk_pos(0), _loaded_chunk_size(0), _is_last_chunk(false) {
         if (!_file.is_open()) {
             throw FileNotExsit(file);
         }
@@ -68,7 +77,6 @@ namespace Lett {
                 _loaded_chunk_size = 0;
             }
             _is_last_chunk = true;
-            //_file.close();
         }
     }
 
@@ -107,7 +115,7 @@ namespace Lett {
     }
 
     bool FileReader::peek(char &ch, std::size_t n) {
-        if (n<1) {
+        if (n == 0) {
             return false;
         }
         // 保存当前状态

@@ -2,20 +2,21 @@
 #define __LETT_LEXER_TOKEN_H__
 #include <string>
 #include <map>
+#include <unordered_set>
 #include "reader.h"
 
 namespace Lett {
     // Token类型枚举，定义了所有可能的词法单元类型
     enum class TokenType {
-        IDENTIFIER,         // 标识符，如变量名、函数名等
-        BOOL,               // 布尔字面量，如 true, false
-        KEYWORD,            // 关键字，如 fn, class, return 等
-        STRING,             // 字符串字面量，如 "hello"
-        CHAR,               // 字符字面量，如 'c'
-        INTEGER,            // 十进制整数字面量，如 42
-        HEX_INTEGER,        // 十六进制数字面量，如 0x2A
-        OCTAL_INTEGER,      // 八进制数字面量，如 0o52
-        BINARY_INTEGER,     // 二进制数字面量，如 0b101010
+        IDENTIFIER,         // 标识符
+        BOOL,               // 布尔字面量
+        KEYWORD,            // 关键字
+        STRING,             // 字符串字面量
+        CHAR,               // 字符字面量
+        DEC_INTEGER,        // 十进制整数字面量
+        HEX_INTEGER,        // 十六进制数字面量
+        OCTAL_INTEGER,      // 八进制数字面量
+        BINARY_INTEGER,     // 二进制数字面量
         FLOAT,              // 浮点数字面量，如 3.14
         /* 算术运算符       */
         OP_ADD,             // +
@@ -69,22 +70,33 @@ namespace Lett {
     public:
         // 判断字符串是否是关键字
         static bool isKeyWord(const std::string &str); 
-        // 尝试从单字符构造Token,如果失败则返回UNKNOWN类型
-        Token(const char ch, size_t line, size_t column); 
-        // 尝试从单字符构造Token,如果失败则返回UNKNOWN类型
-        Token(const char ch, const char nextch, size_t line, size_t column);
-        // 从外界接受的Token类型和字符串构造Token
-        Token(TokenType type, std::string value, size_t line, size_t column);
 
-        TokenType type() const { return _type; } // 获取Token类型
-        std::string value() const { return _value; } // 获取Token值
-        const char *c_str() const; // 转换为字符串
-        std::string toString() const { return std::string(c_str()); } // 转换为字符串
+        // 构造Token
+        Token(
+                TokenType type,     // 当Token类型为IDENTIFIER时，自动根据value的值来转换为KEYWORD或BOOL
+                const std::string value, 
+                std::size_t line, 
+                std::size_t column
+        );
+
+        // 获取Token类型
+        TokenType type() const { return _type; }
+    
+        // 获取Token值
+        std::string value() const { return _value; } 
+
+        // 获取行或列号
+        std::size_t line() const { return _line; }
+        std::size_t column() const { return _column; }
+
+        // 转换为字符串
+        const char *c_str() const; 
+        std::string toString() const { return std::string(c_str()); }
     private:
+        const static std::unordered_set<std::string> _keyWords; // 关键字集合
         TokenType _type;
         std::string _value;
-        size_t _line;   // 行号
-        size_t _column; // 列号
+        std::size_t _line, _column; // 行列号
     };
 }
 

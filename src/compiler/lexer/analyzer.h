@@ -134,6 +134,8 @@ namespace Lett {
         
         // 初始化状态转移表
         void initStateTable(); 
+        // 配置状态关系转换图
+        void installStateTransition();
         
         // 根据输入的字符，查找状态转移表，获取下一个状态
         // 如果状态表中未查找到，则返回LexerState::Error状态
@@ -141,8 +143,6 @@ namespace Lett {
 
         // 根据当前态，确定Token类型
         TokenType getTokenType();
-
-        bool isKeyWord(const std::string &str) const;
     public:
         // 静态成员函数，用于获取单例实例
         static LexicalAnalyzer& getInstance(Reader *rd);
