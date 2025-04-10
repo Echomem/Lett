@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <unordered_map>
 #include "common.h"
 #include "analyzer.h"
 
@@ -66,18 +67,43 @@ namespace Lett {
                 stateTable[i][j] = LexerState::Error; // 初始化为错误状态
             }
         }
-    }
+    } 
 
     void LexicalAnalyzer::installStateTransition() {
-        // 初始化Ready状态
+        // Setup Ready
         setupStateTransform(LexerState::Ready, LexerState::Ready, " \t\n");
         setupStateTransform(LexerState::Ready, LexerState::Zero, "0");
         setupStateTransform(LexerState::Ready, LexerState::DecInt, "123456789");
         setupStateTransform(LexerState::Ready, LexerState::_Char_S, "'");
         setupStateTransform(LexerState::Ready, LexerState::_String, "\"");
         setupStateTransform(LexerState::Ready, LexerState::Ident, "_$abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+        // Ready -> Symbol...
 
-        // TODO: 安装其他关系转换图
+        // setup Ident
+        setupDefaultStateTransform(LexerState::Ident, LexerState::Ready);
+        setupStateTransform(LexerState::Ident, LexerState::Ident, "_$abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
+        
+        // setup String
+        setupDefaultStateTransform(LexerState::_String, LexerState::_String);
+        setupStateTransform(LexerState::_String, LexerState::Error, "\n");
+        setupStateTransform(LexerState::_String, LexerState::EscString, "\\");
+        setupStateTransform(LexerState::_String, LexerState::String, "\"");
+        setupDefaultStateTransform(LexerState::EscString, LexerState::Error);
+        setupStateTransform(LexerState::EscString, LexerState::_String, "abfnrtv\"\\");
+        setupDefaultStateTransform(LexerState::String, LexerState::Ready);
+
+        // setup Char
+        setupDefaultStateTransform(LexerState::_Char_S, LexerState::_Char);
+        setupStateTransform(LexerState::_Char_S, LexerState::EscChar, "\\");
+        setupStateTransform(LexerState::_Char_S, LexerState::Error, "\n\t");
+        setupDefaultStateTransform(LexerState::_Char, LexerState::Error);
+        setupStateTransform(LexerState::_Char, LexerState::Char, "'");
+        setupDefaultStateTransform(LexerState::Char, LexerState::Ready);
+        setupDefaultStateTransform(LexerState::EscChar, LexerState::Error);
+        setupStateTransform(LexerState::EscChar, LexerState::_Char, "abfnrtv'\\");
+
+        // TODO: setup Number
+        // TODO: setup Symbol
     }
 
     LexerState LexicalAnalyzer::getNextState(char ch) {
@@ -102,9 +128,73 @@ namespace Lett {
     /*
      * 词法分析主要实现函数
      */
+    #define INSERT_STATE_TO_TOKEN_TYPE_MAP(state) {LexerState::state, TokenType::state}
+
+    const std::unordered_map<LexerState, TokenType> lexerStateToTokenTypeMap = {
+        {LexerState::Zero,      TokenType::DEC_INTEGER},
+        {LexerState::DecInt,    TokenType::DEC_INTEGER},
+        {LexerState::HexInt,    TokenType::HEX_INTEGER},
+        {LexerState::OctInt,    TokenType::OCT_INTEGER},
+        {LexerState::BinInt,    TokenType::BIN_INTEGER},
+        {LexerState::Float,     TokenType::FLOAT      },
+        {LexerState::String,    TokenType::STRING     },
+        {LexerState::Char,      TokenType::CHAR       },
+        {LexerState::Ident,     TokenType::IDENTIFIER },
+        INSERT_STATE_TO_TOKEN_TYPE_MAP(OP_ADD),
+        INSERT_STATE_TO_TOKEN_TYPE_MAP(OP_SUB),
+        INSERT_STATE_TO_TOKEN_TYPE_MAP(OP_MUL),
+        INSERT_STATE_TO_TOKEN_TYPE_MAP(OP_DIV),
+        INSERT_STATE_TO_TOKEN_TYPE_MAP(OP_MOD),
+        INSERT_STATE_TO_TOKEN_TYPE_MAP(OP_ASSIGN),
+        INSERT_STATE_TO_TOKEN_TYPE_MAP(OP_BIT_AND),
+        INSERT_STATE_TO_TOKEN_TYPE_MAP(OP_BIT_OR),
+        INSERT_STATE_TO_TOKEN_TYPE_MAP(OP_BIT_NOT),
+        INSERT_STATE_TO_TOKEN_TYPE_MAP(OP_BIT_XOR),
+        INSERT_STATE_TO_TOKEN_TYPE_MAP(OP_EQUAL),
+        INSERT_STATE_TO_TOKEN_TYPE_MAP(OP_GREAT),
+        INSERT_STATE_TO_TOKEN_TYPE_MAP(OP_LESS),
+
+        INSERT_STATE_TO_TOKEN_TYPE_MAP(OP_INC),
+        INSERT_STATE_TO_TOKEN_TYPE_MAP(OP_ADD_ASSIGN),
+        INSERT_STATE_TO_TOKEN_TYPE_MAP(OP_SUB_ASSIGN),
+        INSERT_STATE_TO_TOKEN_TYPE_MAP(OP_DEC),
+        INSERT_STATE_TO_TOKEN_TYPE_MAP(OP_MUL_ASSIGN),
+        INSERT_STATE_TO_TOKEN_TYPE_MAP(OP_DIV_ASSIGN),
+        INSERT_STATE_TO_TOKEN_TYPE_MAP(OP_MOD_ASSIGN),
+        INSERT_STATE_TO_TOKEN_TYPE_MAP(OP_EQUAL),
+        INSERT_STATE_TO_TOKEN_TYPE_MAP(OP_BIT_AND_ASSIGN),
+        INSERT_STATE_TO_TOKEN_TYPE_MAP(OP_AND),
+        INSERT_STATE_TO_TOKEN_TYPE_MAP(OP_BIT_OR_ASSIGN),
+        INSERT_STATE_TO_TOKEN_TYPE_MAP(OP_OR),
+        INSERT_STATE_TO_TOKEN_TYPE_MAP(OP_GREAT_EQUAL),
+        INSERT_STATE_TO_TOKEN_TYPE_MAP(OP_BIT_SHIFT_RIGHT),
+        INSERT_STATE_TO_TOKEN_TYPE_MAP(OP_LESS_EQUAL),
+        INSERT_STATE_TO_TOKEN_TYPE_MAP(OP_BIT_SHIFT_LEFT),
+        INSERT_STATE_TO_TOKEN_TYPE_MAP(OP_NOT_EQUAL),
+
+        INSERT_STATE_TO_TOKEN_TYPE_MAP(LEFT_PARENT),
+        INSERT_STATE_TO_TOKEN_TYPE_MAP(RIGHT_PARENT),
+        INSERT_STATE_TO_TOKEN_TYPE_MAP(LEFT_BRACKET),
+        INSERT_STATE_TO_TOKEN_TYPE_MAP(RIGHT_BRACKET),
+        INSERT_STATE_TO_TOKEN_TYPE_MAP(LEFT_BRACE),
+        INSERT_STATE_TO_TOKEN_TYPE_MAP(RIGHT_BRACE),
+        INSERT_STATE_TO_TOKEN_TYPE_MAP(COMMA),
+        INSERT_STATE_TO_TOKEN_TYPE_MAP(SEMI_COLON),
+        INSERT_STATE_TO_TOKEN_TYPE_MAP(DOT),
+        INSERT_STATE_TO_TOKEN_TYPE_MAP(COLON),
+        INSERT_STATE_TO_TOKEN_TYPE_MAP(DOUBLE_COLON),
+    };
+
+    #undef INSERT_STATE_TO_TOKEN_TYPE_MAP
+
     TokenType LexicalAnalyzer::getTokenType() {
-        // TODO: 根据状态返回Token类型
-        return TokenType::UNKNOWN; 
+        // 根据状态返回Token类型
+        TokenType token_type = TokenType::UNKNOWN;
+        auto it = lexerStateToTokenTypeMap.find(_state);
+        if (it != lexerStateToTokenTypeMap.end()) {
+            token_type = it->second;
+        }
+        return token_type; 
     }
 
     void LexicalAnalyzer::analyze() {

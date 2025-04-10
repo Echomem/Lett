@@ -12,8 +12,8 @@ namespace Lett {
         {TokenType::CHAR, "CHAR"},
         {TokenType::DEC_INTEGER, "DEC_INTEGER"},
         {TokenType::HEX_INTEGER, "HEX_INTEGER"},
-        {TokenType::OCTAL_INTEGER, "OCTAL_INTEGER"},
-        {TokenType::BINARY_INTEGER, "BINARY_INTEGER"},
+        {TokenType::OCT_INTEGER, "OCT_INTEGER"},
+        {TokenType::BIN_INTEGER, "BIN_INTEGER"},
         {TokenType::FLOAT, "FLOAT"},
         {TokenType::OP_ADD, "OP_ADD"},
         {TokenType::OP_SUB, "OP_SUB"},
@@ -33,6 +33,7 @@ namespace Lett {
         {TokenType::OP_SUB_ASSIGN, "OP_SUB_ASSIGN"},
         {TokenType::OP_MUL_ASSIGN, "OP_MUL_ASSIGN"},
         {TokenType::OP_DIV_ASSIGN, "OP_DIV_ASSIGN"},
+        {TokenType::OP_MOD_ASSIGN, "OP_MOD_ASSIGN"},
         {TokenType::OP_BIT_AND_ASSIGN, "OP_BIT_AND_ASSIGN"},
         {TokenType::OP_BIT_OR_ASSIGN, "OP_BIT_OR_ASSIGN"},
         {TokenType::OP_EQUAL, "OP_EQUAL"},
@@ -83,11 +84,11 @@ namespace Lett {
             // constructor.
             if (type == TokenType::IDENTIFIER) {
                 if (value.compare("true")==0 || value.compare("false")==0) {
-                    type = TokenType::BOOL;
+                    _type = TokenType::BOOL;
                 } else if (Token::isKeyWord(value)) {
-                    type = TokenType::KEYWORD;
+                    _type = TokenType::KEYWORD;
                 } else {
-                    type = TokenType::IDENTIFIER;
+                    _type = TokenType::IDENTIFIER;
                 }
             }
     }

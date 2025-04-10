@@ -15,8 +15,8 @@ namespace Lett {
         CHAR,               // 字符字面量
         DEC_INTEGER,        // 十进制整数字面量
         HEX_INTEGER,        // 十六进制数字面量
-        OCTAL_INTEGER,      // 八进制数字面量
-        BINARY_INTEGER,     // 二进制数字面量
+        OCT_INTEGER,      // 八进制数字面量
+        BIN_INTEGER,     // 二进制数字面量
         FLOAT,              // 浮点数字面量，如 3.14
         /* 算术运算符       */
         OP_ADD,             // +
@@ -39,6 +39,7 @@ namespace Lett {
         OP_SUB_ASSIGN,      // -=
         OP_MUL_ASSIGN,      // *=
         OP_DIV_ASSIGN,      // /=
+        OP_MOD_ASSIGN,      // %=
         OP_BIT_AND_ASSIGN,  // &=
         OP_BIT_OR_ASSIGN,   // |=
         /* 比较运算符        */

@@ -75,6 +75,7 @@ namespace Lett {
         OP_LESS             ,
         OP_LESS_EQUAL       ,
         OP_BIT_SHIFT_LEFT   ,
+        OP_BIT_SHIFT_RIGHT  ,
         LEFT_PARENT         ,
         RIGHT_PARENT        ,
         LEFT_BRACKET        ,
