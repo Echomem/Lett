@@ -1,6 +1,7 @@
 #include "reader.h"
 #include "common.h"
 
+#define CHUNK_SIZE (1024 * 1024)
 namespace Lett {
 
     StringReader::StringReader(const char *str) 
@@ -34,60 +35,119 @@ namespace Lett {
         return false;
     }
 
-    size_t StringReader::getLine() {
+    std::size_t StringReader::line() const {
         return _line;
     }
 
-    size_t StringReader::getColumn() {
+    std::size_t StringReader::column() const {
         return _column;
     }
 
+    FileReader::FileReader(const char *file)
+    :_file(file, std::ios::binary),
+     _line(1), _column(0), 
+     _chunk(CHUNK_SIZE),_chunk_pos(0), _loaded_chunk_size(0), _is_last_chunk(false) {
+        if (!_file.is_open()) {
+            throw "file open failed.";
+        }
+        _loadChunk();
+    }
 
-    FileReader::FileReader(const char *file) : _ch(0), _line(1), _column(0) {
-        _ifs.open(file);
-        if (!_ifs.is_open()) {
-            throw FileNotExsit(file);
+    void FileReader::_loadChunk() {
+        if (_file.read(_chunk.data(), CHUNK_SIZE)) {
+            _chunk_pos = 0;
+            _loaded_chunk_size = CHUNK_SIZE;
+        } else {
+            std::streamsize lastChunkSize = _file.gcount();
+            if (lastChunkSize > 0) {
+                _chunk_pos = 0;
+                _loaded_chunk_size = static_cast<std::size_t>(lastChunkSize);
+                _chunk.resize(_loaded_chunk_size);
+            } else {
+                _chunk_pos = 0;
+                _loaded_chunk_size = 0;
+            }
+            _is_last_chunk = true;
+            //_file.close();
         }
     }
 
-    bool FileReader::read(char &ch) {
-        while(Reader::filter(ch = _ifs.get())) {
-            if (_ifs.eof()) {
-                _ch = ch;
+    bool FileReader::_chunk_read(char &ch) {
+        if (_is_last_chunk && _chunk_pos==_loaded_chunk_size) {
+            // 读取到文件结尾
+            return false;
+        }
+        if (_chunk_pos == _loaded_chunk_size) {
+            // 读取到块的末端，加载一个新块
+            _loadChunk();
+            if (_is_last_chunk && _loaded_chunk_size==0) {
+                // 加载的新块是最后一个空块
                 return false;
             }
         }
+        ch = _chunk[_chunk_pos++];
+        return true;
+    }
 
-        if (_ch == '\n') {
+    bool FileReader::read(char &ch) {
+        do {
+            if (!_chunk_read(ch)) {
+                // 读取到文件结尾
+                return false;
+            }
+        } while (!Reader::isChar(ch));
+
+        if (ch == '\n') {
             _line++;
             _column = 0;
-        } 
-        _column++;
-        _ch = ch;
-        return true;
-    }
-
-    bool FileReader::peek(char &ch, size_t n) {
-        std::streampos currentPos = _ifs.tellg();   // 保存当前的流位置
-        for (size_t i=0; i<n; i++) {
-            while(Reader::filter(ch=_ifs.peek())) {
-                if (_ifs.eof()) {
-                    _ifs.seekg(currentPos); // 恢复流位置
-                    return false;   // 如果读取到结束符，则返回false
-                }
-                _ifs.ignore(1);   // 忽略下一个字符
-            }
-            _ifs.ignore(1);    // 忽略下一个字符
+        } else {
+            _column++;
         }
-        _ifs.seekg(currentPos); // 恢复流位置
         return true;
     }
 
-    size_t FileReader::getLine() {
+    bool FileReader::peek(char &ch, std::size_t n) {
+        if (n<1) {
+            return false;
+        }
+        // 保存当前状态
+        std::streampos position = _file.tellg();
+        std::size_t line = _line;
+        std::size_t column = _column;
+        std::vector<char> chunk(_chunk);
+        std::size_t chunk_pos = _chunk_pos;
+        std::size_t loaded_chunk_size = _loaded_chunk_size;
+        bool is_last_chunk = _is_last_chunk;
+
+        for (size_t i=0; i<n; i++) {
+            if(!read(ch)){
+                // 读取到文件末尾，恢复状态
+                _file.seekg(position);
+                _line = line;
+                _column = column;
+                _chunk = chunk;  
+                _chunk_pos = chunk_pos;
+                _loaded_chunk_size = loaded_chunk_size;
+                _is_last_chunk = is_last_chunk;
+                return false;
+            }
+        }
+        // 回退到上一个读取位置
+        _file.seekg(position);
+        _line = line;
+        _column = column;
+        _chunk = chunk;  
+        _chunk_pos = chunk_pos;
+        _loaded_chunk_size = loaded_chunk_size;
+        _is_last_chunk = is_last_chunk;
+        return true;
+    }
+
+    std::size_t FileReader::line() const{
         return _line;
     }
 
-    size_t FileReader::getColumn() {
+    std::size_t FileReader::column() const{
         return _column;
     }
 }

@@ -121,8 +121,8 @@ namespace Lett {
                     // Ready -> Error | Other
                     value.clear();
                     value += ch;
-                    line = _reader->getLine();
-                    column = _reader->getColumn();
+                    line = _reader->line();
+                    column = _reader->column();
                     _state = next_state;
                 } else {
                     break; // 读取到文件结束符，退出循环
