@@ -48,7 +48,7 @@ namespace Lett {
      _line(1), _column(0), 
      _chunk(CHUNK_SIZE),_chunk_pos(0), _loaded_chunk_size(0), _is_last_chunk(false) {
         if (!_file.is_open()) {
-            throw "file open failed.";
+            throw FileNotExsit(file);
         }
         _loadChunk();
     }
