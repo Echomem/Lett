@@ -67,7 +67,7 @@ namespace Lett {
                 stateTable[i][j] = LexerState::Error; // 初始化为错误状态
             }
         }
-    } 
+    }
 
     void LexicalAnalyzer::installStateTransition() {
         // Setup Ready
@@ -103,6 +103,30 @@ namespace Lett {
         setupStateTransform(LexerState::EscChar, LexerState::_Char, "abfnrtv'\\");
 
         // TODO: setup Number
+        setupDefaultStateTransform(LexerState::Zero, LexerState::Ready);
+        setupStateTransform(LexerState::Zero, LexerState::DecInt, "123456789");
+        setupStateTransform(LexerState::Zero, LexerState::_Hex, "xX");
+        setupStateTransform(LexerState::Zero, LexerState::_Oct, "oO");
+        setupStateTransform(LexerState::Zero, LexerState::_Bin, "bB");
+        setupStateTransform(LexerState::Zero, LexerState::Float, ".");
+        setupDefaultStateTransform(LexerState::_Hex, LexerState::Error);
+        setupStateTransform(LexerState::_Hex, LexerState::HexInt, "0123456789abcdefABCDEF");
+        setupDefaultStateTransform(LexerState::_Oct, LexerState::Error);
+        setupStateTransform(LexerState::_Oct, LexerState::OctInt, "01234567");
+        setupDefaultStateTransform(LexerState::_Bin, LexerState::Error);
+        setupStateTransform(LexerState::_Bin, LexerState::BinInt, "01");
+        setupDefaultStateTransform(LexerState::DecInt, LexerState::Ready);
+        setupStateTransform(LexerState::DecInt, LexerState::DecInt, "0123456789");
+        setupStateTransform(LexerState::DecInt, LexerState::Float, ".");
+        setupDefaultStateTransform(LexerState::Float, LexerState::Ready);
+        setupStateTransform(LexerState::Float, LexerState::Float, "0123456789");
+        setupDefaultStateTransform(LexerState::HexInt, LexerState::Ready);
+        setupStateTransform(LexerState::HexInt, LexerState::HexInt, "0123456789abcdefABCDEF");
+        setupDefaultStateTransform(LexerState::OctInt, LexerState::Ready);
+        setupStateTransform(LexerState::OctInt, LexerState::OctInt, "01234567");
+        setupDefaultStateTransform(LexerState::BinInt, LexerState::Ready);
+        setupStateTransform(LexerState::BinInt, LexerState::BinInt, "01");
+
         // TODO: setup Symbol
     }
 
