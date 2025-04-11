@@ -117,16 +117,47 @@ namespace Lett {
 
     bool FileReader::peek(char &ch, std::size_t n) {
         ch = _ch;
+        std::vector<char> chunk;
         // 保存当前状态
         std::streampos position = _file.tellg();
         std::size_t line = _line;
         std::size_t column = _column;
-        std::vector<char> chunk(_chunk);
         std::size_t chunk_pos = _chunk_pos;
         std::size_t loaded_chunk_size = _loaded_chunk_size;
         bool is_last_chunk = _is_last_chunk;
 
-        for (size_t i=0; i<n; i++) {
+        // 优先尝试在当前块_chunk中查找字符，减少块拷贝
+        if (_chunk_pos < _loaded_chunk_size) {
+            // 当前块至少有一个空间，尝试在当前块中查找
+            std::size_t p = 0;
+            for (p=0; p<n; p++) {
+                if (_chunk_pos >= (_loaded_chunk_size - 1)) {
+                    // 读取到当前块的最后一个字符
+                    break;
+                }
+                if (!read(ch)) {
+                    break;
+                }
+            }
+            if (p == n) {
+                // 在当前块中读取到数据，恢复状态后返回
+                _line = line;
+                _column = column;
+                _chunk_pos = chunk_pos;
+                _loaded_chunk_size = loaded_chunk_size;
+                _is_last_chunk = is_last_chunk;
+                return true;
+            }
+        }
+
+        // 上述未尝试读取到，恢复到最初状态，重新查找
+        _line = line;
+        _column = column;
+        _chunk_pos = chunk_pos;
+        _loaded_chunk_size = loaded_chunk_size;
+        _is_last_chunk = is_last_chunk;
+        chunk = _chunk; // 备份_chunk;
+        for (std::size_t i=0; i<n; i++) {
             if(!read(ch)){
                 // 读取到文件末尾，恢复状态
                 _file.seekg(position);
