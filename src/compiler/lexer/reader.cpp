@@ -5,7 +5,7 @@
 namespace Lett {
 
     StringReader::StringReader(const char *str) 
-        : _ch(0), _line(1), _column(0), _str(str), _pos(0) {
+        : _ch(0), _str(str),  _pos(0), _line(1), _column(0) {
         if (str == nullptr) {
             throw InvalidArgument("str", "String cannot be null.");
         }
@@ -18,8 +18,9 @@ namespace Lett {
             }
             ch = _str[_pos++];
         } while (!Reader::isChar(ch));
-        // 如果上个字符是换行符，则行号加1，列号归0
+
         if (ch == '\n') {
+            // 如果上个字符是换行符，则行号加1，列号归0
             _line++;
             _column = 0;
         } else {
@@ -30,15 +31,14 @@ namespace Lett {
     }
 
     bool StringReader::peek(char &ch, size_t n) {
-        if (n == 0) {
-            return false;
-        }
+        ch = _ch;
+        std::size_t pos = _pos;
         for (size_t i =0; i<n; i++) {
             do {
-                ch = _str[_pos++];
-                if (_pos >= _str.length()){
+                if (pos >= _str.length()){
                     return false;
                 }
+                ch = _str[pos++];
             } while (!Reader::isChar(ch));
         }
         return true;
@@ -54,46 +54,47 @@ namespace Lett {
 
     FileReader::FileReader(const char *file)
         :_file(file, std::ios::binary),
-        _line(1), _column(0), 
+        _line(1), _column(0), _ch(0),
         _chunk(CHUNK_SIZE),_chunk_pos(0), _loaded_chunk_size(0), _is_last_chunk(false) {
         if (!_file.is_open()) {
             throw FileNotExsit(file);
         }
-        _loadChunk();
+        _load_chunk();
     }
 
-    void FileReader::_loadChunk() {
+    void FileReader::_load_chunk() {
         if (_file.read(_chunk.data(), CHUNK_SIZE)) {
-            _chunk_pos = 0;
             _loaded_chunk_size = CHUNK_SIZE;
         } else {
+            // 读取到最后一个块
             std::streamsize lastChunkSize = _file.gcount();
             if (lastChunkSize > 0) {
-                _chunk_pos = 0;
                 _loaded_chunk_size = static_cast<std::size_t>(lastChunkSize);
                 _chunk.resize(_loaded_chunk_size);
             } else {
-                _chunk_pos = 0;
-                _loaded_chunk_size = 0;
+                _loaded_chunk_size = 0; // 加载的新块是空块
             }
             _is_last_chunk = true;
         }
+        _chunk_pos = 0;
     }
 
     bool FileReader::_chunk_read(char &ch) {
-        if (_is_last_chunk && _chunk_pos==_loaded_chunk_size) {
-            // 读取到文件结尾
-            return false;
-        }
-        if (_chunk_pos == _loaded_chunk_size) {
-            // 读取到块的末端，加载一个新块
-            _loadChunk();
-            if (_is_last_chunk && _loaded_chunk_size==0) {
-                // 加载的新块是最后一个空块
+        if (_chunk_pos == _loaded_chunk_size && !_is_last_chunk) {
+            // 读取到非最后一个块的结尾，加载新块
+            _load_chunk();
+            if (_loaded_chunk_size == 0) {
+                // 加载后的新块为空块
                 return false;
             }
         }
-        ch = _chunk[_chunk_pos++];
+    
+        if (_chunk_pos==_loaded_chunk_size && _is_last_chunk) {
+            // 读取到最后一个块的结尾
+            return false;
+        }   
+        _ch = _chunk[_chunk_pos++];
+        ch = _ch;
         return true;
     }
 
@@ -115,9 +116,7 @@ namespace Lett {
     }
 
     bool FileReader::peek(char &ch, std::size_t n) {
-        if (n == 0) {
-            return false;
-        }
+        ch = _ch;
         // 保存当前状态
         std::streampos position = _file.tellg();
         std::size_t line = _line;
