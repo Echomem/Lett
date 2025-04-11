@@ -21,7 +21,7 @@ namespace Lett {
     }
 
     LexicalAnalyzer::LexicalAnalyzer(Reader *rd) 
-        : _reader(rd), _state(LexerState::Ready), lexerVisibleChars(LEXER_VISIBLE_CHARS) 
+        : _reader(rd), _state(LexerState::READY), lexerVisibleChars(LEXER_VISIBLE_CHARS) 
     {
         // 初始化词法分析器
         if (_reader == nullptr) {
@@ -61,78 +61,78 @@ namespace Lett {
     }
 
      void LexicalAnalyzer::initStateTable() {
-        size_t lexer_state_size = static_cast<size_t>(LexerState::Error) + 1;
+        size_t lexer_state_size = static_cast<size_t>(LexerState::ERROR) + 1;
         for(size_t i=0; i<lexer_state_size; ++i) {
             for(size_t j=0; j<LEXER_CHARSET_SIZE; ++j) {
-                stateTable[i][j] = LexerState::Error; // 初始化为错误状态
+                stateTable[i][j] = LexerState::ERROR; // 初始化为错误状态
             }
         }
     }
 
     void LexicalAnalyzer::installStateTransition() {
         // Setup Ready
-        setupStateTransform(LexerState::Ready, LexerState::Ready, " \t\n");
-        setupStateTransform(LexerState::Ready, LexerState::Zero, "0");
-        setupStateTransform(LexerState::Ready, LexerState::DecInt, "123456789");
-        setupStateTransform(LexerState::Ready, LexerState::_Char_S, "'");
-        setupStateTransform(LexerState::Ready, LexerState::_String, "\"");
-        setupStateTransform(LexerState::Ready, LexerState::Ident, "_$abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+        setupStateTransform(LexerState::READY, LexerState::READY, " \t\n");
+        setupStateTransform(LexerState::READY, LexerState::ZERO, "0");
+        setupStateTransform(LexerState::READY, LexerState::DEC_INTEGER, "123456789");
+        setupStateTransform(LexerState::READY, LexerState::_CHAR_S, "'");
+        setupStateTransform(LexerState::READY, LexerState::_STRING, "\"");
+        setupStateTransform(LexerState::READY, LexerState::IDENTIFIER, "_$abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
         // Ready -> Symbol...
 
         // setup Ident
-        setupDefaultStateTransform(LexerState::Ident, LexerState::Ready);
-        setupStateTransform(LexerState::Ident, LexerState::Ident, "_$abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
+        setupDefaultStateTransform(LexerState::IDENTIFIER, LexerState::READY);
+        setupStateTransform(LexerState::IDENTIFIER, LexerState::IDENTIFIER, "_$abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
         
         // setup String
-        setupDefaultStateTransform(LexerState::_String, LexerState::_String);
-        setupStateTransform(LexerState::_String, LexerState::Error, "\n");
-        setupStateTransform(LexerState::_String, LexerState::EscString, "\\");
-        setupStateTransform(LexerState::_String, LexerState::String, "\"");
-        setupDefaultStateTransform(LexerState::EscString, LexerState::Error);
-        setupStateTransform(LexerState::EscString, LexerState::_String, "abfnrtv\"\\");
-        setupDefaultStateTransform(LexerState::String, LexerState::Ready);
+        setupDefaultStateTransform(LexerState::_STRING, LexerState::_STRING);
+        setupStateTransform(LexerState::_STRING, LexerState::ERROR, "\n");
+        setupStateTransform(LexerState::_STRING, LexerState::ESCSTRING, "\\");
+        setupStateTransform(LexerState::_STRING, LexerState::STRING, "\"");
+        setupDefaultStateTransform(LexerState::ESCSTRING, LexerState::ERROR);
+        setupStateTransform(LexerState::ESCSTRING, LexerState::_STRING, "abfnrtv\"\\");
+        setupDefaultStateTransform(LexerState::STRING, LexerState::READY);
 
         // setup Char
-        setupDefaultStateTransform(LexerState::_Char_S, LexerState::_Char);
-        setupStateTransform(LexerState::_Char_S, LexerState::EscChar, "\\");
-        setupStateTransform(LexerState::_Char_S, LexerState::Error, "\n\t");
-        setupDefaultStateTransform(LexerState::_Char, LexerState::Error);
-        setupStateTransform(LexerState::_Char, LexerState::Char, "'");
-        setupDefaultStateTransform(LexerState::Char, LexerState::Ready);
-        setupDefaultStateTransform(LexerState::EscChar, LexerState::Error);
-        setupStateTransform(LexerState::EscChar, LexerState::_Char, "abfnrtv'\\");
+        setupDefaultStateTransform(LexerState::_CHAR_S, LexerState::_CHAR);
+        setupStateTransform(LexerState::_CHAR_S, LexerState::ESCCHAR, "\\");
+        setupStateTransform(LexerState::_CHAR_S, LexerState::ERROR, "\n\t");
+        setupDefaultStateTransform(LexerState::_CHAR, LexerState::ERROR);
+        setupStateTransform(LexerState::_CHAR, LexerState::CHAR, "'");
+        setupDefaultStateTransform(LexerState::CHAR, LexerState::READY);
+        setupDefaultStateTransform(LexerState::ESCCHAR, LexerState::ERROR);
+        setupStateTransform(LexerState::ESCCHAR, LexerState::_CHAR, "abfnrtv'\\");
 
         // TODO: setup Number
-        setupDefaultStateTransform(LexerState::Zero, LexerState::Ready);
-        setupStateTransform(LexerState::Zero, LexerState::DecInt, "123456789");
-        setupStateTransform(LexerState::Zero, LexerState::_Hex, "xX");
-        setupStateTransform(LexerState::Zero, LexerState::_Oct, "oO");
-        setupStateTransform(LexerState::Zero, LexerState::_Bin, "bB");
-        setupStateTransform(LexerState::Zero, LexerState::Float, ".");
-        setupDefaultStateTransform(LexerState::_Hex, LexerState::Error);
-        setupStateTransform(LexerState::_Hex, LexerState::HexInt, "0123456789abcdefABCDEF");
-        setupDefaultStateTransform(LexerState::_Oct, LexerState::Error);
-        setupStateTransform(LexerState::_Oct, LexerState::OctInt, "01234567");
-        setupDefaultStateTransform(LexerState::_Bin, LexerState::Error);
-        setupStateTransform(LexerState::_Bin, LexerState::BinInt, "01");
-        setupDefaultStateTransform(LexerState::DecInt, LexerState::Ready);
-        setupStateTransform(LexerState::DecInt, LexerState::DecInt, "0123456789");
-        setupStateTransform(LexerState::DecInt, LexerState::Float, ".");
-        setupDefaultStateTransform(LexerState::Float, LexerState::Ready);
-        setupStateTransform(LexerState::Float, LexerState::Float, "0123456789");
-        setupDefaultStateTransform(LexerState::HexInt, LexerState::Ready);
-        setupStateTransform(LexerState::HexInt, LexerState::HexInt, "0123456789abcdefABCDEF");
-        setupDefaultStateTransform(LexerState::OctInt, LexerState::Ready);
-        setupStateTransform(LexerState::OctInt, LexerState::OctInt, "01234567");
-        setupDefaultStateTransform(LexerState::BinInt, LexerState::Ready);
-        setupStateTransform(LexerState::BinInt, LexerState::BinInt, "01");
+        setupDefaultStateTransform(LexerState::ZERO, LexerState::READY);
+        setupStateTransform(LexerState::ZERO, LexerState::DEC_INTEGER, "123456789");
+        setupStateTransform(LexerState::ZERO, LexerState::_HEX_S, "xX");
+        setupStateTransform(LexerState::ZERO, LexerState::_OCT, "oO");
+        setupStateTransform(LexerState::ZERO, LexerState::_BIN, "bB");
+        setupStateTransform(LexerState::ZERO, LexerState::FLOAT, ".");
+        setupDefaultStateTransform(LexerState::_HEX_S, LexerState::ERROR);
+        setupStateTransform(LexerState::_HEX_S, LexerState::HEX_INTEGER, "0123456789abcdefABCDEF");
+        setupDefaultStateTransform(LexerState::_OCT, LexerState::ERROR);
+        setupStateTransform(LexerState::_OCT, LexerState::OCT_INTEGER, "01234567");
+        setupDefaultStateTransform(LexerState::_BIN, LexerState::ERROR);
+        setupStateTransform(LexerState::_BIN, LexerState::BIN_INTEGER, "01");
+        setupDefaultStateTransform(LexerState::DEC_INTEGER, LexerState::READY);
+        setupStateTransform(LexerState::DEC_INTEGER, LexerState::DEC_INTEGER, "0123456789");
+        setupStateTransform(LexerState::DEC_INTEGER, LexerState::FLOAT, ".");
+        setupDefaultStateTransform(LexerState::FLOAT, LexerState::READY);
+        setupStateTransform(LexerState::FLOAT, LexerState::FLOAT, "0123456789");
+        setupDefaultStateTransform(LexerState::HEX_INTEGER, LexerState::READY);
+        setupStateTransform(LexerState::HEX_INTEGER, LexerState::HEX_INTEGER, "0123456789abcdefABCDEF");
+        setupDefaultStateTransform(LexerState::OCT_INTEGER, LexerState::READY);
+        setupStateTransform(LexerState::OCT_INTEGER, LexerState::OCT_INTEGER, "01234567");
+        setupDefaultStateTransform(LexerState::BIN_INTEGER, LexerState::READY);
+        setupStateTransform(LexerState::BIN_INTEGER, LexerState::BIN_INTEGER, "01");
 
         // TODO: setup Symbol
     }
 
     LexerState LexicalAnalyzer::getNextState(char ch) {
         // 根据当前状态state,查找stateTable表确定下一个状态。
-        // 未找到，返回LexerState::Error
+        // 未找到，返回LexerState::ERROR
         size_t i = static_cast<size_t>(_state);
         size_t len = lexerVisibleChars.length();
         if(static_cast<unsigned short>(ch) > 128) {
@@ -146,7 +146,7 @@ namespace Lett {
                 }
             }
         }
-        return LexerState::Error;
+        return LexerState::ERROR;
     }
 
     /*
@@ -155,15 +155,16 @@ namespace Lett {
     #define INSERT_STATE_TO_TOKEN_TYPE_MAP(state) {LexerState::state, TokenType::state}
 
     const std::unordered_map<LexerState, TokenType> lexerStateToTokenTypeMap = {
-        {LexerState::Zero,      TokenType::DEC_INTEGER},
-        {LexerState::DecInt,    TokenType::DEC_INTEGER},
-        {LexerState::HexInt,    TokenType::HEX_INTEGER},
-        {LexerState::OctInt,    TokenType::OCT_INTEGER},
-        {LexerState::BinInt,    TokenType::BIN_INTEGER},
-        {LexerState::Float,     TokenType::FLOAT      },
-        {LexerState::String,    TokenType::STRING     },
-        {LexerState::Char,      TokenType::CHAR       },
-        {LexerState::Ident,     TokenType::IDENTIFIER },
+        {LexerState::ZERO,  TokenType::DEC_INTEGER},
+        INSERT_STATE_TO_TOKEN_TYPE_MAP(DEC_INTEGER),
+        INSERT_STATE_TO_TOKEN_TYPE_MAP(HEX_INTEGER),
+        INSERT_STATE_TO_TOKEN_TYPE_MAP(OCT_INTEGER),
+        INSERT_STATE_TO_TOKEN_TYPE_MAP(BIN_INTEGER),
+        INSERT_STATE_TO_TOKEN_TYPE_MAP(FLOAT),
+        INSERT_STATE_TO_TOKEN_TYPE_MAP(STRING),
+        INSERT_STATE_TO_TOKEN_TYPE_MAP(CHAR),
+        INSERT_STATE_TO_TOKEN_TYPE_MAP(IDENTIFIER),
+
         INSERT_STATE_TO_TOKEN_TYPE_MAP(OP_ADD),
         INSERT_STATE_TO_TOKEN_TYPE_MAP(OP_SUB),
         INSERT_STATE_TO_TOKEN_TYPE_MAP(OP_MUL),
@@ -227,11 +228,11 @@ namespace Lett {
         std::string value;
         size_t line = 1, column = 1; // 行号和列号
         while(true) {
-            if (_state == LexerState::Ready) {
+            if (_state == LexerState::READY) {
                 // 当前在就绪状态
                 if (_reader->read(ch)) {
                     LexerState next_state = getNextState(ch);
-                    if (next_state == LexerState::Ready) {
+                    if (next_state == LexerState::READY) {
                         // Ready -> Ready
                         continue;
                     }
@@ -244,26 +245,26 @@ namespace Lett {
                 } else {
                     break; // 读取到文件结束符，退出循环
                 }
-            } else if (_state == LexerState::Error) {
+            } else if (_state == LexerState::ERROR) {
                 // 当前在错误状态，处理错误
                 _tokens.push_back(Token(TokenType::UNKNOWN,value, line, column));
-                _state = LexerState::Ready;
+                _state = LexerState::READY;
             } else {
                 // 当前在其他状态
                 char next_ch;
                 if (_reader->peek(next_ch)) {
                     LexerState next_state = getNextState(next_ch);
-                    if (next_state == LexerState::Ready) {
+                    if (next_state == LexerState::READY) {
                         // 如果是单行或多行注释状态，则丢弃不处理
                         if (!(_state == LexerState::SINGLINE_COMMENT || _state == LexerState::MUILTLINE_COMMENT)) {
                             TokenType type = getTokenType();
                             _tokens.push_back(Token(type, value, line, column));
                         }
-                        _state = LexerState::Ready;
-                    } else if (next_state == LexerState::Error) {
+                        _state = LexerState::READY;
+                    } else if (next_state == LexerState::ERROR) {
                         // 处理错误
                         _tokens.push_back(Token(TokenType::UNKNOWN,value, line, column));
-                        _state = LexerState::Ready;
+                        _state = LexerState::READY;
                     } else {
                         _reader->read(ch); // 读取下一个字符
                         LexerState next_state = getNextState(ch);
@@ -274,7 +275,7 @@ namespace Lett {
                     // 下个字符是文件结束符
                     TokenType type = getTokenType();
                     _tokens.push_back(Token(type, value, line, column));
-                    _state = LexerState::Ready;
+                    _state = LexerState::READY;
                 }
             }
         }

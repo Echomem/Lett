@@ -18,28 +18,28 @@
 namespace Lett {
 
     enum class LexerState {
-        Ready,             // 准备状态
+        READY,             // 准备状态
         // 数字字面量识别状态
-        Zero  ,
-        DecInt,
-        HexInt,
-        _Hex  ,
-        OctInt,
-        _Oct  ,
-        BinInt,
-        _Bin  ,
-        Float ,
+        ZERO,
+        DEC_INTEGER,
+        HEX_INTEGER,
+        _HEX_S,
+        OCT_INTEGER,
+        _OCT,
+        BIN_INTEGER,
+        _BIN ,
+        FLOAT,
         // 字符串字面量识别状态
-        _String     ,
-        String      ,
-        EscString   ,
+        _STRING,
+        STRING,
+        ESCSTRING,
         // 字符字面量识别状态
-        _Char_S     ,
-        _Char       ,
-        Char        ,
-        EscChar     ,
+        _CHAR_S,
+        _CHAR,
+        CHAR,
+        ESCCHAR,
         // 标识符字面量识别状态
-        Ident   ,
+        IDENTIFIER,
         // 符号是被状态
         OP_ADD              ,
         OP_INC              ,
@@ -88,7 +88,7 @@ namespace Lett {
         COLON               ,
         DOUBLE_COLON        ,
         // 错误状态，作为最后一项，不要移动该位置
-        Error              
+        ERROR              
     };
 
     // 词法分析器类，单例模式的类（加入了互斥锁，保证线程安全）
@@ -123,7 +123,7 @@ namespace Lett {
         
         // 状态转移表，对于当前所处的状态及输入的字符定义了下一个状态。
         // 构造函数中需手工对该状态表进行写入。
-        LexerState stateTable[static_cast<size_t>(LexerState::Error) + 1][LEXER_CHARSET_SIZE];
+        LexerState stateTable[static_cast<size_t>(LexerState::ERROR) + 1][LEXER_CHARSET_SIZE];
         
         // 设置状态转换表中的转换关系
         // 当在statrtState状态时，将输入符合charList的字符，全部转换为endState
@@ -139,7 +139,7 @@ namespace Lett {
         void installStateTransition();
         
         // 根据输入的字符，查找状态转移表，获取下一个状态
-        // 如果状态表中未查找到，则返回LexerState::Error状态
+        // 如果状态表中未查找到，则返回LexerState::ERROR状态
         LexerState getNextState(char ch);
 
         // 根据当前态，确定Token类型
