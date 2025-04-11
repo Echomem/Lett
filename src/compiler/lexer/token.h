@@ -1,24 +1,26 @@
 #ifndef __LETT_LEXER_TOKEN_H__
 #define __LETT_LEXER_TOKEN_H__
 #include <string>
-#include <map>
+#include <mutex>
 #include <unordered_set>
+#include <unordered_map>
 #include "reader.h"
 
 namespace Lett {
     // Token类型枚举，定义了所有可能的词法单元类型
     enum class TokenType {
-        IDENTIFIER,         // 标识符
-        BOOL,               // 布尔字面量
-        KEYWORD,            // 关键字
-        STRING,             // 字符串字面量
-        CHAR,               // 字符字面量
-        DEC_INTEGER,        // 十进制整数字面量
-        HEX_INTEGER,        // 十六进制数字面量
-        OCT_INTEGER,      // 八进制数字面量
-        BIN_INTEGER,     // 二进制数字面量
-        FLOAT,              // 浮点数字面量，如 3.14
-        /* 算术运算符       */
+        // Basic types
+        IDENTIFIER, 
+        BOOL,               // true/false
+        KEYWORD,            // keyword
+        STRING,             // "string"
+        CHAR,               // 'c'
+        DEC_INTEGER,        // 10
+        HEX_INTEGER,        // 0xFF
+        OCT_INTEGER,        // 0o76
+        BIN_INTEGER,        // 0b1101
+        FLOAT,              // 3.14
+        // Operators
         OP_ADD,             // +
         OP_SUB,             // -
         OP_MUL,             // *
@@ -26,14 +28,12 @@ namespace Lett {
         OP_MOD,             // %
         OP_INC,             // ++
         OP_DEC,             // --
-        /* 比特运算符       */
         OP_BIT_AND,         // &
         OP_BIT_OR,          // |
         OP_BIT_NOT,         // ^
         OP_BIT_XOR,         // ~
         OP_BIT_SHIFT_LEFT,  // <<
         OP_BIT_SHIFT_RIGHT, // >>
-        /* 赋值运算符        */
         OP_ASSIGN,          // =
         OP_ADD_ASSIGN,      // +=
         OP_SUB_ASSIGN,      // -=
@@ -42,17 +42,15 @@ namespace Lett {
         OP_MOD_ASSIGN,      // %=
         OP_BIT_AND_ASSIGN,  // &=
         OP_BIT_OR_ASSIGN,   // |=
-        /* 比较运算符        */
         OP_EQUAL,           // ==
         OP_NOT_EQUAL,       // !=
         OP_GREAT,           // >
         OP_LESS,            // <
         OP_GREAT_EQUAL,     // >=
         OP_LESS_EQUAL,      // <=
-        /* 逻辑运算符        */
         OP_AND,             // &&
         OP_OR,              // ||
-        /* 以下是分割符         */
+        // Seperators
         LEFT_PARENT,        // (
         RIGHT_PARENT,       // )
         LEFT_BRACKET,       // [
@@ -64,13 +62,52 @@ namespace Lett {
         COLON,              // :
         DOUBLE_COLON,       // ::
         SEMI_COLON,         // ;
-        UNKNOWN             // 未知类型
+        UNKNOWN
+    };
+
+    // Symbols, include operators and seperators
+    class Symbol {
+    private:
+        TokenType _type;
+        std::string _value;
+    public:
+        Symbol(TokenType type, const std::string &value);
+        Symbol(const Symbol& symbol); 
+        Symbol& operator=(const Symbol& symbol);
+
+        TokenType type() const { return _type; }
+        std::string value() const { return _value; }
+    };
+
+    class SymbolTable {
+    private:
+        // 构造函数私有化，防止外部实例化
+        SymbolTable();
+        // 拷贝构造函数私有化，防止拷贝
+        SymbolTable(const SymbolTable&) = delete; 
+        // 赋值运算符私有化，防止赋值
+        SymbolTable& operator=(const SymbolTable&) = delete;
+        // 静态互斥锁，用于线程安全
+        static std::mutex _mutex;
+        // 静态成员变量，保存单例实例
+        static SymbolTable *_instance;
+
+        std::vector<Symbol> _symbols; // 符号表
+        // 添加符号到符号表
+        void addSymbol(TokenType type, const std::string &value);
+    public:
+        // 获取单例实例
+        static SymbolTable& getInstance();
+        // 根据类型获取符号
+        Symbol getSymbol(TokenType type) const;
     };
 
     class Token {
     public:
         // 判断字符串是否是关键字
-        static bool isKeyWord(const std::string &str); 
+        static bool isKeyWord(const std::string &str);
+        // 获取类型的名称 
+        static const char *getTypeName(TokenType type);
 
         // 构造Token
         Token(
@@ -95,6 +132,7 @@ namespace Lett {
         std::string toString() const { return std::string(c_str()); }
     private:
         const static std::unordered_set<std::string> _keyWords; // 关键字集合
+        const static std::unordered_map<TokenType, std::string> _tokenTypeToStringMap;
         TokenType _type;
         std::string _value;
         std::size_t _line, _column; // 行列号

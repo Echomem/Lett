@@ -1,10 +1,134 @@
 #include <sstream>
-#include <unordered_map>
 #include "token.h"
 
 namespace Lett {
 
-    const std::unordered_map<TokenType, std::string> tokenTypeToStringMap = {
+    Symbol::Symbol(TokenType type, const std::string &value) : _type(type), _value(value) {
+    }
+
+    Symbol::Symbol(const Symbol& symbol) {
+        _type = symbol._type;
+        _value = symbol._value;
+    }
+
+    Symbol& Symbol::operator=(const Symbol& symbol) {
+        if (this != &symbol) {
+            _type = symbol._type;
+            _value = symbol._value;
+        }
+        return *this;
+    }
+
+    SymbolTable* SymbolTable::_instance = nullptr;
+    std::mutex SymbolTable::_mutex;
+
+    SymbolTable::SymbolTable() : _symbols() {
+        addSymbol(TokenType::OP_ADD, "+");
+        addSymbol(TokenType::OP_SUB, "-");
+        addSymbol(TokenType::OP_MUL, "*");
+        addSymbol(TokenType::OP_DIV, "/");
+        addSymbol(TokenType::OP_MOD, "%");
+        addSymbol(TokenType::OP_INC, "++");
+        addSymbol(TokenType::OP_DEC, "--");
+        addSymbol(TokenType::OP_BIT_AND, "&");
+        addSymbol(TokenType::OP_BIT_OR, "|");
+        addSymbol(TokenType::OP_BIT_NOT, "~");
+        addSymbol(TokenType::OP_BIT_XOR, "^");
+        addSymbol(TokenType::OP_BIT_SHIFT_LEFT, "<<");
+        addSymbol(TokenType::OP_BIT_SHIFT_RIGHT, ">>");
+        addSymbol(TokenType::OP_ASSIGN, "=");
+        addSymbol(TokenType::OP_ADD_ASSIGN, "+=");
+        addSymbol(TokenType::OP_SUB_ASSIGN, "-=");
+        addSymbol(TokenType::OP_MUL_ASSIGN, "*=");
+        addSymbol(TokenType::OP_DIV_ASSIGN, "/=");
+        addSymbol(TokenType::OP_MOD_ASSIGN, "%=");
+        addSymbol(TokenType::OP_BIT_AND_ASSIGN, "&=");
+        addSymbol(TokenType::OP_BIT_OR_ASSIGN, "|=");
+        addSymbol(TokenType::OP_EQUAL, "==");
+        addSymbol(TokenType::OP_NOT_EQUAL, "!=");
+        addSymbol(TokenType::OP_GREAT, ">");
+        addSymbol(TokenType::OP_LESS, "<");
+        addSymbol(TokenType::OP_GREAT_EQUAL, ">=");
+        addSymbol(TokenType::OP_LESS_EQUAL, "<=");
+        addSymbol(TokenType::OP_AND, "&&");
+        addSymbol(TokenType::OP_OR, "||");
+        addSymbol(TokenType::LEFT_PARENT, "(");
+        addSymbol(TokenType::RIGHT_PARENT, ")");
+        addSymbol(TokenType::LEFT_BRACKET, "[");
+        addSymbol(TokenType::RIGHT_BRACKET, "]");
+        addSymbol(TokenType::LEFT_BRACE, "{");
+        addSymbol(TokenType::RIGHT_BRACE, "}");
+        addSymbol(TokenType::DOT, ".");
+        addSymbol(TokenType::COMMA, ",");
+        addSymbol(TokenType::COLON, ":");
+        addSymbol(TokenType::DOUBLE_COLON, "::");
+        addSymbol(TokenType::SEMI_COLON, ";");
+    }
+
+    void SymbolTable::addSymbol(TokenType type, const std::string &value) {
+        _symbols.emplace_back(type, value);
+    }
+
+    Symbol SymbolTable::getSymbol(TokenType type) const {
+        return Symbol(type, "");
+    }
+
+    SymbolTable& SymbolTable::getInstance() {
+        std::lock_guard<std::mutex> lock(_mutex);
+        if (_instance == nullptr) {
+            _instance = new SymbolTable();
+        }
+        return *_instance;
+    }
+
+    // 关键字
+    const std::unordered_set<std::string> Token::_keyWords = {
+        "import",
+        "var",
+        "fn",
+        "return",
+        "main",
+        "while",
+        "do",
+        "for",
+        "if",
+        "elif",
+        "else",
+        "switch",
+        "case",
+        "default",
+        "break",
+        "continue",
+        "void",
+        "int",
+        "int8",
+        "int16",
+        "int32",
+        "int64",
+        "uint",
+        "uint8",
+        "uint16",
+        "uint32",
+        "uint64",
+        "float",
+        "float32",
+        "float64",
+        "char",
+        "string",
+        "bool",
+        "class",
+        "public",
+        "protected",
+        "private",
+        "interface",
+        "virtual",
+        "super",
+        "this",
+        "self",
+        "object"
+    };
+
+    const std::unordered_map<TokenType, std::string> Token::_tokenTypeToStringMap = {
         {TokenType::IDENTIFIER, "IDENTIFIER"},
         {TokenType::BOOL, "BOOL"},
         {TokenType::KEYWORD, "KEYWORD"},
@@ -58,18 +182,6 @@ namespace Lett {
         {TokenType::UNKNOWN, "UNKNOWN"}
     };
 
-    const std::unordered_set<std::string> Token::_keyWords = {
-        "import",   "var",      "fn",   "return",   "main",
-        "while",    "do",       "for",  "if",       "elif",
-        "else",     "switch",   "case", "default",  "break",
-        "continue", "void",     "int",  "int8",     "int16",
-        "int32",    "int64",    "uint", "uint8",    "uint16",
-        "uint32",   "uint64",   "float","float32",  "float64",
-        "char",     "string",   "bool", "class",    "public",
-        "protected","private", "interface", "virtual", "super",
-        "this",     "self",     "object"
-    };
-
     bool Token::isKeyWord(const std::string &str) {
         // TODO: 使用哈希表来查找关键字
         auto it = _keyWords.find(str);
@@ -77,6 +189,17 @@ namespace Lett {
             return true;
         }
         return false;
+    }
+
+    const char *Token::getTypeName(TokenType type) {
+        std::string type_name;
+        auto it = _tokenTypeToStringMap.find(type);
+        if (it != _tokenTypeToStringMap.end()) {
+            type_name = it->second;
+        } else {
+            type_name = "UNKNOWN";
+        }
+        return type_name.c_str();
     }
 
     Token::Token(TokenType type, const std::string value, size_t line, size_t column)
@@ -95,14 +218,7 @@ namespace Lett {
 
     const char *Token::c_str() const {
         std::ostringstream oss;
-        std::string typeStr;
-        auto it = tokenTypeToStringMap.find(_type);
-        if (it != tokenTypeToStringMap.end()) {
-            typeStr = it->second;
-        } else {
-            typeStr = "UNKNOWN";
-        }
-        oss << "(" << typeStr << "," << _value << "," << _line << "," << _column << ")";
+        oss << "(" << Token::getTypeName(_type) << "," << _value << "," << _line << ":" << _column << ")";
         return oss.str().c_str();
     }
 } // namespace Lett
