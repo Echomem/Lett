@@ -56,7 +56,6 @@ namespace Lett {
         _MUILTLINE_COMMENT  ,
         _MUILTLINE_COMMENT_E,
         MUILTLINE_COMMENT   ,
-        _OP_NOT_EQUAL       ,
         OP_NOT_EQUAL        ,
         OP_MOD              ,
         OP_MOD_ASSIGN       ,
@@ -68,6 +67,7 @@ namespace Lett {
         OP_BIT_OR           ,
         OP_BIT_OR_ASSIGN    ,
         OP_OR               ,
+        OP_NOT              ,
         OP_BIT_NOT          ,
         OP_BIT_XOR          ,
         OP_GREAT            ,
@@ -137,6 +137,7 @@ namespace Lett {
         void initStateTable(); 
         // 配置状态关系转换图
         void installStateTransition();
+        void installSymbolTransition();
         
         // 根据输入的字符，查找状态转移表，获取下一个状态
         // 如果状态表中未查找到，则返回LexerState::ERROR状态

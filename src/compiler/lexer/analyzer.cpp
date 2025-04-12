@@ -1,8 +1,10 @@
 #include <iostream>
 #include <fstream>
+#include <map>
 #include <unordered_map>
 #include "common.h"
 #include "analyzer.h"
+#include "token.h"
 
 namespace Lett {
 
@@ -44,6 +46,7 @@ namespace Lett {
         INSERT_STATE_TO_TOKEN_TYPE_MAP(OP_AND),
         INSERT_STATE_TO_TOKEN_TYPE_MAP(OP_BIT_OR_ASSIGN),
         INSERT_STATE_TO_TOKEN_TYPE_MAP(OP_OR),
+        INSERT_STATE_TO_TOKEN_TYPE_MAP(OP_NOT),
         INSERT_STATE_TO_TOKEN_TYPE_MAP(OP_GREAT_EQUAL),
         INSERT_STATE_TO_TOKEN_TYPE_MAP(OP_BIT_SHIFT_RIGHT),
         INSERT_STATE_TO_TOKEN_TYPE_MAP(OP_LESS_EQUAL),
@@ -63,6 +66,16 @@ namespace Lett {
         INSERT_STATE_TO_TOKEN_TYPE_MAP(DOUBLE_COLON),
     };
     #undef INSERT_STATE_TO_TOKEN_TYPE_MAP
+
+    LexerState getState(TokenType type) {
+        // 根据Token类型返回对应的LexerState
+        for (const auto& pair : lexerStateToTokenTypeMap) {
+            if (pair.second == type) {
+                return pair.first;
+            }
+        }
+        return LexerState::ERROR;
+    }
 
     /* 
      *LexcialAnalyzer单例模式的实现    
@@ -186,7 +199,62 @@ namespace Lett {
         setupDefaultStateTransform(LexerState::BIN_INTEGER, LexerState::READY);
         setupStateTransform(LexerState::BIN_INTEGER, LexerState::BIN_INTEGER, "01");
 
-        // TODO: setup Symbol
+        // TODO: setup Symbols
+        installSymbolTransition();
+    }
+
+    void LexicalAnalyzer::installSymbolTransition() {
+        std::map<Lett::Symbol, std::vector<Lett::Symbol>> unisymbol_map;
+        SymbolTable &symbol_table = Lett::SymbolTable::getInstance();
+        for (Symbol symbol:symbol_table.getSymbols()) {
+            if (symbol.value().length() == 1) {
+                // 处理单字符的符号
+                unisymbol_map.insert(
+                    std::pair<Symbol, std::vector<Symbol>>(symbol, std::vector<Symbol>{})
+                );
+            }
+        }
+
+        for (Symbol symbol:symbol_table.getSymbols()) {
+            if (symbol.value().length() == 2) {
+                // 处理双字符的符号
+                for (auto& pair : unisymbol_map) {
+                    if (pair.first.value() == symbol.value().substr(0, 1)) {
+                        pair.second.push_back(symbol);
+                        break;
+                    }
+                }
+            }
+        }
+
+        for (const auto& pair : unisymbol_map) {
+            if (pair.second.size() == 0) {
+                // 处理单字符的符号
+                setupStateTransform(LexerState::READY, getState(pair.first.type()), pair.first.value().c_str());
+                setupDefaultStateTransform(getState(pair.first.type()), LexerState::READY);
+            } else {
+                // 处理双字符的符号
+                setupDefaultStateTransform(getState(pair.first.type()), LexerState::READY);
+                setupStateTransform(LexerState::READY, getState(pair.first.type()), pair.first.value().c_str());
+                for (const auto& symbol : pair.second) {
+                    setupStateTransform(getState(pair.first.type()), getState(symbol.type()), symbol.value().substr(1,2).c_str());
+                    setupDefaultStateTransform(getState(symbol.type()), LexerState::READY);
+                }
+            }
+        }
+        // 处理单行注释和多行注释
+        setupStateTransform(LexerState::OP_DIV, LexerState::_MUILTLINE_COMMENT, "*");
+        setupStateTransform(LexerState::OP_DIV, LexerState::_SINGLINE_COMMENT, "/");
+
+        setupDefaultStateTransform(LexerState::_MUILTLINE_COMMENT, LexerState::_MUILTLINE_COMMENT);
+        setupStateTransform(LexerState::_MUILTLINE_COMMENT, LexerState::_MUILTLINE_COMMENT_E, "*");
+        setupDefaultStateTransform(LexerState::_MUILTLINE_COMMENT_E, LexerState::_MUILTLINE_COMMENT);
+        setupStateTransform(LexerState::_MUILTLINE_COMMENT_E, LexerState::MUILTLINE_COMMENT, "/");
+        setupDefaultStateTransform(LexerState::MUILTLINE_COMMENT, LexerState::READY);
+
+        setupDefaultStateTransform(LexerState::_SINGLINE_COMMENT, LexerState::_SINGLINE_COMMENT);
+        setupStateTransform(LexerState::_SINGLINE_COMMENT, LexerState::SINGLINE_COMMENT, "\n");
+        setupDefaultStateTransform(LexerState::SINGLINE_COMMENT, LexerState::READY);
     }
 
     LexerState LexicalAnalyzer::getNextState(char ch) {

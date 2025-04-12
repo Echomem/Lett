@@ -50,6 +50,7 @@ namespace Lett {
         OP_LESS_EQUAL,      // <=
         OP_AND,             // &&
         OP_OR,              // ||
+        OP_NOT,             // !
         // Seperators
         LEFT_PARENT,        // (
         RIGHT_PARENT,       // )
@@ -74,6 +75,8 @@ namespace Lett {
         Symbol(TokenType type, const std::string &value);
         Symbol(const Symbol& symbol); 
         Symbol& operator=(const Symbol& symbol);
+        // 重载 < 运算符作为成员函数
+        bool operator<(const Symbol& other) const;
 
         TokenType type() const { return _type; }
         std::string value() const { return _value; }
@@ -100,6 +103,7 @@ namespace Lett {
         static SymbolTable& getInstance();
         // 根据类型获取符号
         Symbol getSymbol(TokenType type) const;
+        const std::vector<Symbol> &getSymbols() const { return _symbols; }
     };
 
     class Token {

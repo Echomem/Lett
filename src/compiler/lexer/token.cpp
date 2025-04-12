@@ -19,6 +19,13 @@ namespace Lett {
         return *this;
     }
 
+    bool Symbol::operator<(const Symbol& other) const {
+        if (_type != other._type) {
+            return static_cast<int>(_type) < static_cast<int>(other._type);
+        }
+        return false;
+    }
+
     SymbolTable* SymbolTable::_instance = nullptr;
     std::mutex SymbolTable::_mutex;
 
@@ -52,6 +59,7 @@ namespace Lett {
         addSymbol(TokenType::OP_LESS_EQUAL, "<=");
         addSymbol(TokenType::OP_AND, "&&");
         addSymbol(TokenType::OP_OR, "||");
+        addSymbol(TokenType::OP_NOT, "!");
         addSymbol(TokenType::LEFT_PARENT, "(");
         addSymbol(TokenType::RIGHT_PARENT, ")");
         addSymbol(TokenType::LEFT_BRACKET, "[");
@@ -168,6 +176,7 @@ namespace Lett {
         {TokenType::OP_LESS_EQUAL, "OP_LESS_EQUAL"},
         {TokenType::OP_AND, "OP_AND"},
         {TokenType::OP_OR, "OP_OR"},
+        {TokenType::OP_NOT, "OP_NOT"},
         {TokenType::LEFT_PARENT, "LEFT_PARENT"},
         {TokenType::RIGHT_PARENT, "RIGHT_PARENT"},
         {TokenType::LEFT_BRACKET, "LEFT_BRACKET"},

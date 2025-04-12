@@ -101,6 +101,10 @@ cd build
 ctest
 ```
 
+## 设计文档
+
+[设计文档](docs/design.md)
+
 ## 贡献指南
 
 欢迎提交Issue和Pull Request来帮助改进Lett项目。在提交代码前，请确保：
@@ -113,6 +117,3 @@ ctest
 ## 许可证
 
 本项目采用MIT许可证。详见 [LICENSE](LICENSE) 文件。 
-
-## 设计文档
-[设计文档](docs/design.md)
