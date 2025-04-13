@@ -3,231 +3,128 @@
 
 namespace Lett {
 
-    Symbol::Symbol(TokenType type, const std::string &value) : _type(type), _value(value) {
-    }
-
-    Symbol::Symbol(const Symbol& symbol) {
-        _type = symbol._type;
-        _value = symbol._value;
-    }
-
-    Symbol& Symbol::operator=(const Symbol& symbol) {
-        if (this != &symbol) {
-            _type = symbol._type;
-            _value = symbol._value;
+    TokenTypeItem& TokenTypeItem::operator=(const TokenTypeItem& other) {
+        if (this != &other) {
+            type = other.type;
+            value = other.value;
         }
         return *this;
     }
 
-    bool Symbol::operator<(const Symbol& other) const {
-        if (_type != other._type) {
-            return static_cast<int>(_type) < static_cast<int>(other._type);
+    bool TokenTypeItem::operator<(const TokenTypeItem& other) const {
+        if (type != other.type) {
+            return static_cast<int>(type) < static_cast<int>(other.type);
         }
         return false;
     }
+    
+    #define KEYWORD_MEMBER(k) #k,
+    const std::unordered_set<std::string> &Token::_keywords = {
+        LETT_KEYWORDS
+    };
+    #undef KEYWORD_MEMBER
 
-    SymbolTable* SymbolTable::_instance = nullptr;
-    std::mutex SymbolTable::_mutex;
+    #define BOOLEAN_MEMBER(b) #b,
+    const std::unordered_set<std::string> &Token::_boolean = {
+        LETT_BOOLEAN
+    };
+    #undef BOOLEAN_MEMBER
 
-    SymbolTable::SymbolTable() : _symbols() {
-        addSymbol(TokenType::OP_ADD, "+");
-        addSymbol(TokenType::OP_SUB, "-");
-        addSymbol(TokenType::OP_MUL, "*");
-        addSymbol(TokenType::OP_DIV, "/");
-        addSymbol(TokenType::OP_MOD, "%");
-        addSymbol(TokenType::OP_INC, "++");
-        addSymbol(TokenType::OP_DEC, "--");
-        addSymbol(TokenType::OP_BIT_AND, "&");
-        addSymbol(TokenType::OP_BIT_OR, "|");
-        addSymbol(TokenType::OP_BIT_NOT, "~");
-        addSymbol(TokenType::OP_BIT_XOR, "^");
-        addSymbol(TokenType::OP_BIT_SHIFT_LEFT, "<<");
-        addSymbol(TokenType::OP_BIT_SHIFT_RIGHT, ">>");
-        addSymbol(TokenType::OP_ASSIGN, "=");
-        addSymbol(TokenType::OP_ADD_ASSIGN, "+=");
-        addSymbol(TokenType::OP_SUB_ASSIGN, "-=");
-        addSymbol(TokenType::OP_MUL_ASSIGN, "*=");
-        addSymbol(TokenType::OP_DIV_ASSIGN, "/=");
-        addSymbol(TokenType::OP_MOD_ASSIGN, "%=");
-        addSymbol(TokenType::OP_BIT_AND_ASSIGN, "&=");
-        addSymbol(TokenType::OP_BIT_OR_ASSIGN, "|=");
-        addSymbol(TokenType::OP_EQUAL, "==");
-        addSymbol(TokenType::OP_NOT_EQUAL, "!=");
-        addSymbol(TokenType::OP_GREAT, ">");
-        addSymbol(TokenType::OP_LESS, "<");
-        addSymbol(TokenType::OP_GREAT_EQUAL, ">=");
-        addSymbol(TokenType::OP_LESS_EQUAL, "<=");
-        addSymbol(TokenType::OP_AND, "&&");
-        addSymbol(TokenType::OP_OR, "||");
-        addSymbol(TokenType::OP_NOT, "!");
-        addSymbol(TokenType::LEFT_PARENT, "(");
-        addSymbol(TokenType::RIGHT_PARENT, ")");
-        addSymbol(TokenType::LEFT_BRACKET, "[");
-        addSymbol(TokenType::RIGHT_BRACKET, "]");
-        addSymbol(TokenType::LEFT_BRACE, "{");
-        addSymbol(TokenType::RIGHT_BRACE, "}");
-        addSymbol(TokenType::DOT, ".");
-        addSymbol(TokenType::COMMA, ",");
-        addSymbol(TokenType::COLON, ":");
-        addSymbol(TokenType::DOUBLE_COLON, "::");
-        addSymbol(TokenType::SEMI_COLON, ";");
-    }
+    #define TKTP_MEMBER(m, s) \
+            TokenTypeItem{TokenType::m, std::string(s)},
+    const TokenTypeItems &Token::_operators = {
+            LETT_TKTP_OPERATOR
+    };
 
-    void SymbolTable::addSymbol(TokenType type, const std::string &value) {
-        _symbols.emplace_back(type, value);
-    }
+    const TokenTypeItems &Token::_seperators = {
+            LETT_TKTP_SEPERATOR
+    };
+    #undef TKTP_MEMBER
 
-    Symbol SymbolTable::getSymbol(TokenType type) const {
-        return Symbol(type, "");
-    }
-
-    SymbolTable& SymbolTable::getInstance() {
-        std::lock_guard<std::mutex> lock(_mutex);
-        if (_instance == nullptr) {
-            _instance = new SymbolTable();
+    #define TKTP_MEMBER(m, s) \
+            case TokenType::m: return #m;
+    const char *Token::getTypeName(TokenType type) {
+        switch (type) {
+            LETT_TKTP_BASIC
+            LETT_TKTP_OPERATOR
+            LETT_TKTP_SEPERATOR
+            default:
+                return "UNKOWN";
         }
-        return *_instance;
+    }
+    #undef TKTP_MEMBER
+
+    TokenTypeTable Token::_table;
+
+    const TokenTypeTable &Token::getTokenTable() {
+        if (Token::_table.empty()) {
+            // 初始化_table.
+            TokenTypeItems symbol_items;
+            for (const TokenTypeItem &it: Token::_operators) {
+                // symbol_items连接Token::_operators
+                symbol_items.emplace_back(it);
+            }
+
+            for (const TokenTypeItem &it: Token::_seperators) {
+                // symbol_items连接Token::_seperators
+                symbol_items.emplace_back(it);
+            }
+
+            for (const TokenTypeItem &it: symbol_items) {
+                if (it.value.length()==1) {
+                    // 单字符操作符
+                    Token::_table.emplace(it, TokenTypeItems());
+                }
+            }
+
+            for (const TokenTypeItem &dit: symbol_items) {
+                if (dit.value.length()==2) {
+                    // 双字符符号
+                    for (auto &pair :Token::_table) {
+                        if (dit.value.substr(0,1)==pair.first.value) {
+                            // 双字符符号的第一个字符与表中第一项匹配
+                            pair.second.emplace_back(dit);
+                        }
+                    }
+                }
+            }
+        }
+        return _table;
     }
 
-    // 关键字
-    const std::unordered_set<std::string> Token::_keyWords = {
-        "import",
-        "var",
-        "fn",
-        "return",
-        "main",
-        "while",
-        "do",
-        "for",
-        "if",
-        "elif",
-        "else",
-        "switch",
-        "case",
-        "default",
-        "break",
-        "continue",
-        "void",
-        "int",
-        "int8",
-        "int16",
-        "int32",
-        "int64",
-        "uint",
-        "uint8",
-        "uint16",
-        "uint32",
-        "uint64",
-        "float",
-        "float32",
-        "float64",
-        "char",
-        "string",
-        "bool",
-        "class",
-        "public",
-        "protected",
-        "private",
-        "interface",
-        "virtual",
-        "super",
-        "this",
-        "self",
-        "object"
-    };
-
-    const std::unordered_map<TokenType, std::string> Token::_tokenTypeToStringMap = {
-        {TokenType::IDENTIFIER, "IDENTIFIER"},
-        {TokenType::BOOL, "BOOL"},
-        {TokenType::KEYWORD, "KEYWORD"},
-        {TokenType::STRING, "STRING"},
-        {TokenType::CHAR, "CHAR"},
-        {TokenType::DEC_INTEGER, "DEC_INTEGER"},
-        {TokenType::HEX_INTEGER, "HEX_INTEGER"},
-        {TokenType::OCT_INTEGER, "OCT_INTEGER"},
-        {TokenType::BIN_INTEGER, "BIN_INTEGER"},
-        {TokenType::FLOAT, "FLOAT"},
-        {TokenType::OP_ADD, "OP_ADD"},
-        {TokenType::OP_SUB, "OP_SUB"},
-        {TokenType::OP_MUL, "OP_MUL"},
-        {TokenType::OP_DIV, "OP_DIV"},
-        {TokenType::OP_MOD, "OP_MOD"},
-        {TokenType::OP_INC, "OP_INC"},
-        {TokenType::OP_DEC, "OP_DEC"},
-        {TokenType::OP_BIT_AND, "OP_BIT_AND"},
-        {TokenType::OP_BIT_OR, "OP_BIT_OR"},
-        {TokenType::OP_BIT_NOT, "OP_BIT_NOT"},
-        {TokenType::OP_BIT_XOR, "OP_BIT_XOR"},
-        {TokenType::OP_BIT_SHIFT_LEFT, "OP_BIT_SHIFT_LEFT"},
-        {TokenType::OP_BIT_SHIFT_RIGHT, "OP_BIT_SHIFT_RIGHT"},
-        {TokenType::OP_ASSIGN, "OP_ASSIGN"},
-        {TokenType::OP_ADD_ASSIGN, "OP_ADD_ASSIGN"},
-        {TokenType::OP_SUB_ASSIGN, "OP_SUB_ASSIGN"},
-        {TokenType::OP_MUL_ASSIGN, "OP_MUL_ASSIGN"},
-        {TokenType::OP_DIV_ASSIGN, "OP_DIV_ASSIGN"},
-        {TokenType::OP_MOD_ASSIGN, "OP_MOD_ASSIGN"},
-        {TokenType::OP_BIT_AND_ASSIGN, "OP_BIT_AND_ASSIGN"},
-        {TokenType::OP_BIT_OR_ASSIGN, "OP_BIT_OR_ASSIGN"},
-        {TokenType::OP_EQUAL, "OP_EQUAL"},
-        {TokenType::OP_NOT_EQUAL, "OP_NOT_EQUAL"},
-        {TokenType::OP_GREAT, "OP_GREAT"},
-        {TokenType::OP_LESS, "OP_LESS"},
-        {TokenType::OP_GREAT_EQUAL, "OP_GREAT_EQUAL"},
-        {TokenType::OP_LESS_EQUAL, "OP_LESS_EQUAL"},
-        {TokenType::OP_AND, "OP_AND"},
-        {TokenType::OP_OR, "OP_OR"},
-        {TokenType::OP_NOT, "OP_NOT"},
-        {TokenType::LEFT_PARENT, "LEFT_PARENT"},
-        {TokenType::RIGHT_PARENT, "RIGHT_PARENT"},
-        {TokenType::LEFT_BRACKET, "LEFT_BRACKET"},
-        {TokenType::RIGHT_BRACKET, "RIGHT_BRACKET"},
-        {TokenType::LEFT_BRACE, "LEFT_BRACE"},
-        {TokenType::RIGHT_BRACE, "RIGHT_BRACE"},
-        {TokenType::DOT, "DOT"},
-        {TokenType::COMMA, "COMMA"},
-        {TokenType::COLON, "COLON"},
-        {TokenType::DOUBLE_COLON, "DOUBLE_COLON"},
-        {TokenType::SEMI_COLON, "SEMI_COLON"},
-        {TokenType::UNKNOWN, "UNKNOWN"}
-    };
-
-    bool Token::isKeyWord(const std::string &str) {
-        // TODO: 使用哈希表来查找关键字
-        auto it = _keyWords.find(str);
-        if (it != _keyWords.end()) {
+    bool Token::_is_keyword(std::string &value) {
+        auto it = Token::_keywords.find(value);
+        if (it != Token::_keywords.end()) {
             return true;
         }
         return false;
     }
 
-    const char *Token::getTypeName(TokenType type) {
-        std::string type_name;
-        auto it = _tokenTypeToStringMap.find(type);
-        if (it != _tokenTypeToStringMap.end()) {
-            type_name = it->second;
-        } else {
-            type_name = "UNKNOWN";
+    bool Token::_is_boolean(std::string &value) {
+        auto it = Token::_boolean.find(value);
+        if (it != Token::_boolean.end()) {
+            return true;
         }
-        return type_name.c_str();
+        return false;
     }
 
-    Token::Token(TokenType type, const std::string value, size_t line, size_t column)
+    Token::Token(TokenType type, const std::string &value, std::size_t line, std::size_t column)
         :_type(type), _value(value), _line(line), _column(column) {
-            // constructor.
-            if (type == TokenType::IDENTIFIER) {
-                if (value.compare("true")==0 || value.compare("false")==0) {
-                    _type = TokenType::BOOL;
-                } else if (Token::isKeyWord(value)) {
-                    _type = TokenType::KEYWORD;
-                } else {
-                    _type = TokenType::IDENTIFIER;
-                }
+        // IDENTIFIER类型的Token自动查表，确定是否为KEYWORD或者BOOL
+        if (type == TokenType::IDENTIFIER) {
+            if (Token::_is_boolean(_value)) {
+                _type = TokenType::BOOL;
+            } else if (Token::_is_keyword(_value)) {
+                _type = TokenType::KEYWORD;
+            } else {
+                _type = TokenType::IDENTIFIER;
             }
+        }
     }
 
-    const char *Token::c_str() const {
+    std::string Token::string() const {
         std::ostringstream oss;
-        oss << "(" << Token::getTypeName(_type) << "," << _value << "," << _line << ":" << _column << ")";
-        return oss.str().c_str();
+        oss << "[" << Token::getTypeName(_type) << ", " << _value << ", " << _line << ":" << _column << "]";
+        return oss.str();
     }
-} // namespace Lett
+}   // namespace Lett
