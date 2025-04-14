@@ -18,7 +18,11 @@ else()
     add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
+# 添加主项目的头文件目录
+include_directories(${CMAKE_SOURCE_DIR}/include)
+
 # 添加子目录
 add_subdirectory(src/lib)
 add_subdirectory(src/compiler)
 add_subdirectory(src/vm)
+add_subdirectory(tests)

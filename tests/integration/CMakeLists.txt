@@ -1,19 +1,22 @@
-# 收集测试源文件
-file(GLOB_RECURSE TEST_SOURCES "*.cpp")
-file(GLOB_RECURSE TEST_HEADERS "*.hpp" "*.h")
+# 添加测试可执行文件
+add_executable(integration_test integration_test.cpp)
 
-# 创建测试可执行文件
-add_executable(lett_integration_tests ${TEST_SOURCES} ${TEST_HEADERS})
-
-# 链接liblett库
-target_link_libraries(lett_integration_tests PRIVATE liblett)
-
-# 设置包含目录
-target_include_directories(lett_integration_tests
+# 添加include目录
+target_include_directories(integration_test
     PRIVATE
-        ${CMAKE_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_SOURCE_DIR}/src/compiler/lexer
+    ${CMAKE_SOURCE_DIR}/src/compiler/parser
 )
 
-# 添加测试
-add_test(NAME lett_integration_tests COMMAND lett_integration_tests) 
+# 链接Google Test库和项目库
+target_link_libraries(integration_test
+    PRIVATE
+    gtest
+    gtest_main
+    ltparser
+    ltlexer
+    ltcomm
+)
+
+# 添加测试到CMake测试系统
+add_test(NAME integration_test COMMAND integration_test)

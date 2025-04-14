@@ -1,19 +1,21 @@
-# 收集测试源文件
-file(GLOB_RECURSE TEST_SOURCES "*.cpp")
-file(GLOB_RECURSE TEST_HEADERS "*.hpp" "*.h")
+# 添加测试可执行文件
+add_executable(vm_test vm_test.cpp)
 
-# 创建测试可执行文件
-add_executable(lett_vm_tests ${TEST_SOURCES} ${TEST_HEADERS})
-
-# 链接liblett库
-target_link_libraries(lett_vm_tests PRIVATE liblett)
-
-# 设置包含目录
-target_include_directories(lett_vm_tests
+# 添加include目录
+target_include_directories(vm_test
     PRIVATE
-        ${CMAKE_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_SOURCE_DIR}/src/vm
 )
 
-# 添加测试
-add_test(NAME lett_vm_tests COMMAND lett_vm_tests) 
+# 链接Google Test库和项目库
+target_link_libraries(vm_test
+    PRIVATE
+    gtest
+    gtest_main
+    ltparser
+    ltlexer
+    ltcomm
+)
+
+# 添加测试到CMake测试系统
+add_test(NAME vm_test COMMAND vm_test)
