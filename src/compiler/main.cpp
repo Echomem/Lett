@@ -5,7 +5,7 @@
 #include <iostream>
 #include "common.h"
 #include "lexer/reader.h"
-#include "lexer/analyzer.h"
+#include "lexer/lexer.h"
 
 int main(int argc, char* argv[]) {
     // 检查命令行参数是否正确

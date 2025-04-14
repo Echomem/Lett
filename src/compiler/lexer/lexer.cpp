@@ -1,6 +1,6 @@
 #include <iostream>
 #include "common.h"
-#include "analyzer.h"
+#include "lexer.h"
 
 namespace Lett {
     #define TKTP_MEMBER(m, s) {LexerState::m, TokenType::m},
