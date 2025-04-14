@@ -12,9 +12,9 @@
 #define LEXER_USED_CHARS "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_$@#?`.:,;()[]{}+-*/%&|!^~<>=\\'\"\t\n "
 
 // 状态转换表中可接受字符的个数，Unicode字符统一虚拟为其他
-#define LEXER_VISIBLE_CHAR_LEN (sizeof(LEXER_USED_CHARS) - 1)
-#define UNICODE_CHAR_INDEX  (LEXER_VISIBLE_CHAR_LEN + 0)
-#define LEXER_CHARSET_SIZE  (LEXER_VISIBLE_CHAR_LEN + 1)  
+#define LEXER_USED_CHAR_LEN (sizeof(LEXER_USED_CHARS) - 1)
+#define UNICODE_CHAR_INDEX  (LEXER_USED_CHAR_LEN + 0)
+#define LEXER_CHARSET_SIZE  (LEXER_USED_CHAR_LEN + 1)  
 
 namespace Lett {
     // 词法分析器的状态机，定义了所有可能的状态
@@ -72,6 +72,7 @@ namespace Lett {
         static LexicalAnalyzer& getInstance(Reader *rd);
         void analyze();     // 词法分析
         void print();       // 打印词法分析的结果
+        const std::vector<Token>& getTokens() const { return _tokens; } // 获取token列表
     };
 } // namespace Lett
 
