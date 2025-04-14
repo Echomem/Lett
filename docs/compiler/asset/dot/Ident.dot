@@ -1,0 +1,10 @@
+// 标识符的识别转换图
+digraph LexcialIdent{
+    Ready   [shape=circle,  fontcolor=black,    fillcolor=purple,       style=filled,   color=purple    ];
+    Error   [shape=circle,  fontcolor=black,    fillcolor=red,          style=filled,   color=red       ];
+    Ident   [shape=box,     fontcolor=black,    fillcolor="#08d9d6",    style=filled,   color="#08d9d6" ];
+
+    Ready   ->  Ident       [label="_|$|a..f|A..F",         color="#112d4e",    fontcolor="#ff2e63" ];
+    Ident   ->  Ident       [label="_|$|a..f|A..F|0..9",    color="#112d4e",    fontcolor="#ff2e63" ];
+    Ident   ->  Ready       [label="ch",                    color="#112d4e",    fontcolor="#ff2e63" ];
+}

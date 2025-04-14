@@ -35,12 +35,12 @@
   
 ## 词法分析器的状态
 ### 数字字面量的识别状态
-![数字字面量的状态](resources/number.png)
+![数字字面量的状态](asset/png/number.png)
 ### 字符字面量的识别状态
-![字符字面量的状态](resources/char.png)
+![字符字面量的状态](asset/png/char.png)
 ### 字符串字面量的识别状态
-![字符串字面量的状态](resources/string.png)
+![字符串字面量的状态](asset/png/string.png)
 ### 标志符的识别状态
-![标识符的状态](resources/ident.png)
+![标识符的状态](asset/png/ident.png)
 ### 其他符号的识别状态
-![其他符号的状态](resources/symbol.png)
+![其他符号的状态](asset/png/symbol.png)

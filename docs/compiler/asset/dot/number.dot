@@ -1,0 +1,43 @@
+// 定义数字字面量的转换关系图
+digraph LexcialNumber {
+    Ready [shape=circle,    fontcolor=black, fillcolor=purple,      style=filled, color=purple];
+    Error [shape=circle,    fontcolor=black, fillcolor=red,         style=filled, color=red   ];
+    Zero  [shape=box,       fontcolor=black, fillcolor="#08d9d6",   style=filled, color="#08d9d6"];
+    DecInt[shape=box,       fontcolor=black, fillcolor="#08d9d6",   style=filled, color="#08d9d6"];
+    HexInt[shape=box,       fontcolor=black, fillcolor="#08d9d6",   style=filled, color="#08d9d6"];
+    _Hex  [shape=diamond,   fontcolor=black, fillcolor="#f08a5d",   style=filled, color="#f08a5d"];
+    OctInt[shape=box,       fontcolor=black, fillcolor="#08d9d6",   style=filled, color="#08d9d6"];
+    _Oct  [shape=diamond,   fontcolor=black, fillcolor="#f08a5d",   style=filled, color="#f08a5d"];
+    BinInt[shape=box,       fontcolor=black, fillcolor="#08d9d6",   style=filled, color="#08d9d6"];
+    _Bin  [shape=diamond,   fontcolor=black, fillcolor="#f08a5d",   style=filled, color="#f08a5d"];
+    Float [shape=box,       fontcolor=black, fillcolor="#08d9d6",   style=filled, color="#08d9d6"];
+
+    Ready -> DecInt [label="1..9",          color="#112d4e", fontcolor="#ff2e63"];
+    DecInt-> DecInt [label="0..9",          color="#112d4e", fontcolor="#ff2e63"];
+    DecInt-> Float  [label=".",             color="#112d4e", fontcolor="#ff2e63"];
+    DecInt-> Ready  [label="ch",            color="#112d4e", fontcolor="#ff2e63"];
+    Float -> Float  [label="0..9",          color="#112d4e", fontcolor="#ff2e63"];
+    Float -> Ready  [label="ch",            color="#112d4e", fontcolor="#ff2e63"];
+    
+    Ready -> Zero   [label="0",             color="#112d4e", fontcolor="#ff2e63"];
+    Zero  -> DecInt [label="0..9",          color="#112d4e", fontcolor="#ff2e63"];
+    Zero  -> _Hex   [label="x|X",           color="#112d4e", fontcolor="#ff2e63"];
+    Zero  -> _Oct   [label="o|O",           color="#112d4e", fontcolor="#ff2e63"];
+    Zero  -> _Bin   [label="b|B",           color="#112d4e", fontcolor="#ff2e63"];
+    Zero  -> Float  [label=".",             color="#112d4e", fontcolor="#ff2e63"];
+    Zero  -> Ready  [label="ch",            color="#112d4e", fontcolor="#ff2e63"];
+
+    _Hex  -> HexInt [label="0..9|a..f|A..F",color="#112d4e", fontcolor="#ff2e63"];
+    _Hex  -> Error  [label="ch",            color="#112d4e", fontcolor="#ff2e63"];
+    _Oct  -> OctInt [label="0..7",          color="#112d4e", fontcolor="#ff2e63"];
+    _Oct  -> Error  [label="ch",            color="#112d4e", fontcolor="#ff2e63"];
+    _Bin  -> BinInt [label="0..1",          color="#112d4e", fontcolor="#ff2e63"];
+    _Bin  -> Error  [label="ch",            color="#112d4e", fontcolor="#ff2e63"];
+
+    HexInt-> HexInt [label="0..9|a..f|A..F",color="#112d4e", fontcolor="#ff2e63"];
+    HexInt-> Ready  [label="ch",            color="#112d4e", fontcolor="#ff2e63"];
+    OctInt-> OctInt [label="0..7",          color="#112d4e", fontcolor="#ff2e63"];
+    OctInt-> Ready  [label="ch",            color="#112d4e", fontcolor="#ff2e63"];
+    BinInt-> BinInt [label="0..1",          color="#112d4e", fontcolor="#ff2e63"];
+    BinInt-> Ready  [label="ch",            color="#112d4e", fontcolor="#ff2e63"];
+}

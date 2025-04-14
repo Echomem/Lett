@@ -1,0 +1,20 @@
+// 字符面量的转换图
+digraph LexcialChar{
+    Ready       [shape=circle,    fontcolor=black, fillcolor=purple,      style=filled, color=purple];
+    Error       [shape=circle,    fontcolor=black, fillcolor=red,         style=filled, color=red   ];
+    _Char_S     [shape=diamond,   fontcolor=black, fillcolor="#f08a5d",   style=filled, color="#f08a5d"];
+    _Char       [shape=diamond,   fontcolor=black, fillcolor="#f08a5d",   style=filled, color="#f08a5d"];
+    Char        [shape=box,       fontcolor=black, fillcolor="#08d9d6",   style=filled, color="#08d9d6"];
+    EscChar     [shape=box,       fontcolor=black, fillcolor="#08d9d6",   style=filled, color="#08d9d6"];
+
+    Ready               -> _Char_S      [label="'",             color="#112d4e", fontcolor="#ff2e63"];
+    _Char_S             -> Error        [label="\\n",           color="#112d4e", fontcolor="#ff2e63"];
+    _Char_S             -> EscChar      [label="\\",            color="#112d4e", fontcolor="#ff2e63"];
+    _Char_S             -> _Char        [label="ch",            color="#112d4e", fontcolor="#ff2e63"];
+
+    _Char               -> Char         [label="'",             color="#112d4e", fontcolor="#ff2e63"];
+    Char                -> Ready        [label="ch",            color="#112d4e", fontcolor="#ff2e63"];
+
+    EscChar             -> _Char        [label="abfnrtv'\\",    color="#112d4e", fontcolor="#ff2e63"];
+    EscChar             -> Error        [label="ch",            color="#112d4e", fontcolor="#ff2e63"];
+}

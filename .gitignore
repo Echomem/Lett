@@ -6,6 +6,9 @@ build/
 # This file is used to ignore files and directories that should not be tracked by Git.
 .vscode/
 
+# offline package of Google Test.
+googletest/
+
 # Prerequisites
 *.d
 
