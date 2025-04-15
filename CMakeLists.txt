@@ -1,5 +1,17 @@
 cmake_minimum_required(VERSION 3.10)
-project(Lett VERSION 0.1.0 LANGUAGES CXX)
+project(Lett LANGUAGES CXX)
+
+# 设置项目版本号
+set(PROJECT_VERSION_MAJOR 0)
+set(PROJECT_VERSION_MINOR 0)
+set(PROJECT_VERSION_PATCH 1)
+set(PROJECT_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
+
+# 配置版本号头文件
+configure_file(
+    "${PROJECT_SOURCE_DIR}/include/version.h.in"
+    "${PROJECT_SOURCE_DIR}/include/version.h"
+)
 
 # 设置C++标准
 set(CMAKE_CXX_STANDARD 17)

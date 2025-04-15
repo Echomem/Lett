@@ -10,4 +10,9 @@ namespace Lett {
         :LettException("Invalid argument: " + arg_name + ", " + msg) {
 
     }
+
+    InvalidOption::InvalidOption(const std::string &option_name, const std::string &msg)
+        :LettException("Error option: " + option_name + "," + msg) {
+
+    }
 }

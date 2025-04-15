@@ -29,6 +29,11 @@ namespace Lett {
         InvalidArgument(const std::string &arg_name, const std::string& msg);
     };
 
+    class InvalidOption : public LettException {
+    public:
+        InvalidOption(const std::string &option_name, const std::string &msg);
+    };
+
 }   // namespace Lett
 
 #endif // __LETT_EXCEPTION_H__

@@ -31,7 +31,7 @@ namespace Lett {
         std::size_t _pos;       // 指向下一个读取位置
         std::size_t _line, _column; // 行列号
     public:
-        StringReader(const char *str);
+        StringReader(const std::string &str);
 
         // 移动流的位置读取下一个有效字符，失败返回false
         bool read(char &ch); 
@@ -60,7 +60,7 @@ namespace Lett {
         // 如读取到文件结尾返回false
         bool _chunk_read(char &ch);
     public:
-        FileReader(const char *file);
+        FileReader(const std::string &file);
         // 移动流的位置读取下一个有效字符
         bool read(char &ch);
         // 不移动流的位置，查看与当前字符距离为n的有效字符

@@ -4,11 +4,8 @@
 #define CHUNK_SIZE (1024 * 1024)
 namespace Lett {
 
-    StringReader::StringReader(const char *str) 
+    StringReader::StringReader(const std::string &str) 
         : _ch(0), _str(str),  _pos(0), _line(1), _column(0) {
-        if (str == nullptr) {
-            throw InvalidArgument("str", "String cannot be null.");
-        }
     }
 
     bool StringReader::read(char &ch) {
@@ -52,7 +49,7 @@ namespace Lett {
         return _column;
     }
 
-    FileReader::FileReader(const char *file)
+    FileReader::FileReader(const std::string &file)
         :_file(file, std::ios::binary),
         _line(1), _column(0), _ch(0),
         _chunk(CHUNK_SIZE),_chunk_pos(0), _loaded_chunk_size(0), _is_last_chunk(false) {
