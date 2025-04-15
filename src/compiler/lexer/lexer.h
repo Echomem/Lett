@@ -46,9 +46,10 @@ namespace Lett {
     class LexicalAnalyzer {
     private:
         // 构造函数私有化，防止外部实例化
-        LexicalAnalyzer(Reader *rd);
+        LexicalAnalyzer();
         LexicalAnalyzer(const LexicalAnalyzer&) = delete; 
         LexicalAnalyzer& operator=(const LexicalAnalyzer&) = delete;
+        void setReader(Reader *rd);
         
         static LexicalAnalyzer *_instance;
         static std::mutex _mutex;
@@ -69,7 +70,7 @@ namespace Lett {
         static const std::unordered_map<LexerState, TokenType> &_final_state_tktp_map;
         static LexerState _get_final_state(TokenType type);
     public:
-        static LexicalAnalyzer& getInstance(Reader *rd);
+        static LexicalAnalyzer& getInstance(Reader *rd=nullptr);
         void analyze();     // 词法分析
         void print();       // 打印词法分析的结果
         const std::vector<Token>& getTokens() const { return _tokens; } // 获取token列表

@@ -31,23 +31,30 @@ namespace Lett {
     LexicalAnalyzer& LexicalAnalyzer::getInstance(Reader *rd) {
         std::lock_guard<std::mutex> lock(_mutex);
         if (_instance == nullptr) {
-            _instance = new LexicalAnalyzer(rd);
+            _instance = new LexicalAnalyzer();
+            _instance->setReader(rd);
+        } else {
+            _instance->setReader(rd); // 设置新的Reader对象
         }
-
         return *_instance;
     }
 
-    LexicalAnalyzer::LexicalAnalyzer(Reader *rd) 
-        : _reader(rd), _state(LexerState::READY), _lexer_used_chars(LEXER_USED_CHARS) 
+    LexicalAnalyzer::LexicalAnalyzer() 
+        : _reader(nullptr), _state(LexerState::READY), _lexer_used_chars(LEXER_USED_CHARS) 
     {
         // 初始化词法分析器
-        if (_reader == nullptr) {
-            throw InvalidArgument("rd", "Reader pointer is null.");
-        }
-
         _init_state_table(); // 初始化状态转移表
         // 以下手工修改初始的状态转移表
         _install_state_transition();
+    }
+
+    void LexicalAnalyzer::setReader(Reader *rd) {
+        if (rd==nullptr) {
+            throw InvalidArgument("rd", "Reader pointer is null.");
+        }
+        _reader = rd;
+        _state = LexerState::READY; // 重置状态为就绪状态
+        _tokens.clear();
     }
 
     /* 
