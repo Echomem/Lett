@@ -77,7 +77,7 @@ namespace Lett {
     }
 
     bool FileReader::_chunk_read(char &ch) {
-        if (_chunk_pos == _loaded_chunk_size && !_is_last_chunk) {
+        if (_chunk_pos >= _loaded_chunk_size && !_is_last_chunk) {
             // 读取到非最后一个块的结尾，加载新块
             _load_chunk();
             if (_loaded_chunk_size == 0) {
@@ -86,7 +86,7 @@ namespace Lett {
             }
         }
     
-        if (_chunk_pos==_loaded_chunk_size && _is_last_chunk) {
+        if (_chunk_pos>=_loaded_chunk_size && _is_last_chunk) {
             // 读取到最后一个块的结尾
             return false;
         }   

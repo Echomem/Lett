@@ -32,9 +32,9 @@ namespace Lett {
         std::lock_guard<std::mutex> lock(_mutex);
         if (_instance == nullptr) {
             _instance = new LexicalAnalyzer();
-            _instance->setReader(rd);
+            _instance->_set_reader(rd);
         } else {
-            _instance->setReader(rd); // 设置新的Reader对象
+            _instance->_set_reader(rd); // 设置新的Reader对象
         }
         return *_instance;
     }
@@ -48,7 +48,7 @@ namespace Lett {
         _install_state_transition();
     }
 
-    void LexicalAnalyzer::setReader(Reader *rd) {
+    void LexicalAnalyzer::_set_reader(Reader *rd) {
         if (rd==nullptr) {
             throw InvalidArgument("rd", "Reader pointer is null.");
         }
@@ -214,6 +214,19 @@ namespace Lett {
         return token_type; 
     }
 
+    void LexicalAnalyzer::_handle_error(std::string &value, std::size_t line, std::size_t column) {
+        // 错误处理，在错误状态下尝试继续读取直到读取到下一个分隔符为止
+        char ch;
+        while(_reader->read(ch)) {
+            if (ch==' ' || ch=='\t' || ch=='\n') {
+                break;
+            }
+            value += ch;
+        }
+        _tokens.push_back(Token(TokenType::UNKNOWN,value, line, column));
+        _state = LexerState::READY;
+    }
+
     void LexicalAnalyzer::analyze() {
         // 读取源代码流，分析词法单元
         char ch;
@@ -239,8 +252,7 @@ namespace Lett {
                 }
             } else if (_state == LexerState::ERROR) {
                 // 当前在错误状态，处理错误
-                _tokens.push_back(Token(TokenType::UNKNOWN,value, line, column));
-                _state = LexerState::READY;
+                _handle_error(value, line, column);
             } else {
                 // 当前在其他状态
                 char next_ch;
@@ -255,8 +267,7 @@ namespace Lett {
                         _state = LexerState::READY;
                     } else if (next_state == LexerState::ERROR) {
                         // 处理错误
-                        _tokens.push_back(Token(TokenType::UNKNOWN,value, line, column));
-                        _state = LexerState::READY;
+                        _handle_error(value, line, column);
                     } else {
                         _reader->read(ch); // 读取下一个字符
                         LexerState next_state = _get_next_state(ch);
@@ -265,8 +276,10 @@ namespace Lett {
                     }
                 } else {
                     // 下个字符是文件结束符
-                    TokenType type = _get_token_type();
-                    _tokens.push_back(Token(type, value, line, column));
+                    if (!(_state == LexerState::SINGLINE_COMMENT || _state == LexerState::MUILTLINE_COMMENT)) { 
+                        TokenType type = _get_token_type();
+                        _tokens.push_back(Token(type, value, line, column));
+                    }
                     _state = LexerState::READY;
                 }
             }

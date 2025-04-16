@@ -49,7 +49,7 @@ namespace Lett {
         LexicalAnalyzer();
         LexicalAnalyzer(const LexicalAnalyzer&) = delete; 
         LexicalAnalyzer& operator=(const LexicalAnalyzer&) = delete;
-        void setReader(Reader *rd);
+        void _set_reader(Reader *rd);
         
         static LexicalAnalyzer *_instance;
         static std::mutex _mutex;
@@ -66,6 +66,7 @@ namespace Lett {
         void _install_state_transition();  // 配置状态关系转换图
         LexerState _get_next_state(char ch);
         TokenType _get_token_type();       // 获取最终状态的TokeType
+        void _handle_error(std::string &value, std::size_t line, std::size_t column);
 
         static const std::unordered_map<LexerState, TokenType> &_final_state_tktp_map;
         static LexerState _get_final_state(TokenType type);
