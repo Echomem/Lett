@@ -23,6 +23,9 @@
 // 数字分割符，在接受数字状态，输入以下任一字符，完成字符输入状态
 #define NUMBER_SEPERATOR    " \t\n,:;()[]{}+-*/%&|^!~<>='\""
 
+#define IDENT_START "_$abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+#define IDENT_CHARS "_$abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
 namespace Lett {
     // 词法分析器的状态机，定义了所有可能的状态
     #define TKTP_MEMBER(m, s) m,
@@ -36,10 +39,10 @@ namespace Lett {
         _OCT_,
         _BIN_,
         _STRING,
-        ESCSTRING,
+        _ESC_STRING,
         _CHAR_S,
         _CHAR,
-        ESCCHAR,
+        _ESC_CHAR,
         SINGLINE_COMMENT,
         _MUILTLINE_COMMENT,
         _MUILTLINE_COMMENT_E,

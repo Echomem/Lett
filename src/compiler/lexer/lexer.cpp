@@ -100,31 +100,31 @@ namespace Lett {
         _setup_state_transform(LexerState::READY, LexerState::DEC_INTEGER, "123456789");
         _setup_state_transform(LexerState::READY, LexerState::_CHAR_S, "'");
         _setup_state_transform(LexerState::READY, LexerState::_STRING, "\"");
-        _setup_state_transform(LexerState::READY, LexerState::IDENTIFIER, "_$abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+        _setup_state_transform(LexerState::READY, LexerState::IDENTIFIER, IDENT_START);
         // Ready -> Symbol...
 
         // setup Ident
         _setup_default_state_transform(LexerState::IDENTIFIER, LexerState::READY);
-        _setup_state_transform(LexerState::IDENTIFIER, LexerState::IDENTIFIER, "_$abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
+        _setup_state_transform(LexerState::IDENTIFIER, LexerState::IDENTIFIER, IDENT_CHARS);
         
         // setup String
         _setup_default_state_transform(LexerState::_STRING, LexerState::_STRING);
         _setup_state_transform(LexerState::_STRING, LexerState::ERROR, "\n");
-        _setup_state_transform(LexerState::_STRING, LexerState::ESCSTRING, "\\");
+        _setup_state_transform(LexerState::_STRING, LexerState::_ESC_STRING, "\\");
         _setup_state_transform(LexerState::_STRING, LexerState::STRING, "\"");
-        _setup_default_state_transform(LexerState::ESCSTRING, LexerState::ERROR);
-        _setup_state_transform(LexerState::ESCSTRING, LexerState::_STRING, "abfnrtv\"\\");
+        _setup_default_state_transform(LexerState::_ESC_STRING, LexerState::ERROR);
+        _setup_state_transform(LexerState::_ESC_STRING, LexerState::_STRING, "abfnrtv\"\\");
         _setup_default_state_transform(LexerState::STRING, LexerState::READY);
 
         // setup Char
         _setup_default_state_transform(LexerState::_CHAR_S, LexerState::_CHAR);
-        _setup_state_transform(LexerState::_CHAR_S, LexerState::ESCCHAR, "\\");
+        _setup_state_transform(LexerState::_CHAR_S, LexerState::_ESC_CHAR, "\\");
         _setup_state_transform(LexerState::_CHAR_S, LexerState::ERROR, "\n\t");
         _setup_default_state_transform(LexerState::_CHAR, LexerState::ERROR);
         _setup_state_transform(LexerState::_CHAR, LexerState::CHAR, "'");
         _setup_default_state_transform(LexerState::CHAR, LexerState::READY);
-        _setup_default_state_transform(LexerState::ESCCHAR, LexerState::ERROR);
-        _setup_state_transform(LexerState::ESCCHAR, LexerState::_CHAR, "abfnrtv'\\");
+        _setup_default_state_transform(LexerState::_ESC_CHAR, LexerState::ERROR);
+        _setup_state_transform(LexerState::_ESC_CHAR, LexerState::_CHAR, "abfnrtv'\\");
 
         // TODO: setup Number
         _setup_state_transform(LexerState::ZERO, LexerState::DEC_INTEGER, DEC_CHARS);
@@ -213,11 +213,29 @@ namespace Lett {
     void LexicalAnalyzer::_handle_error(std::string &value, std::size_t line, std::size_t column) {
         // 错误处理，在错误状态下尝试继续读取直到读取到下一个分隔符为止
         char ch;
-        while(_reader->read(ch)) {
-            if (ch==' ' || ch=='\t' || ch=='\n') {
-                break;
+        if (_state==LexerState::_ESC_STRING || _state==LexerState::_STRING) {
+            while(_reader->read(ch)) {
+                // 读取直到读取到String结束符
+                if (ch=='"') {
+                    break;
+                }
+                value += ch;
             }
-            value += ch;
+        } else if (_state==LexerState::_CHAR || _state==LexerState::_CHAR_S || _state==LexerState::_ESC_CHAR) {
+            while(_reader->read(ch)) {
+                // 读取直到读取到Char结束符
+                if (ch=='\'') {
+                    break;
+                }
+                value += ch;
+            }
+        } else {
+            while(_reader->read(ch)) {
+                if (ch==' ' || ch=='\t' || ch=='\n') {
+                    break;
+                }
+                value += ch;
+            }
         }
         _tokens.push_back(Token(TokenType::UNKNOWN,value, line, column));
         _state = LexerState::READY;

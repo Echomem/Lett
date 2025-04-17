@@ -36,22 +36,28 @@
 ## 词法分析器的状态
 ### 数字字面量的识别状态说明
 
-定义最终状态：
++ 定义最终状态：
 FinalState = ZERO | DEC_INTEGER | FLOAT | HEX_INTEGER | OCT_INTEGER | BIN_INTEGER
 
-最终状态到READY状态的转换规则：
++ 最终状态到READY状态的转换规则：
 FinalState -> READY{ch = space | \t | \n | operator | seperator}
 
-最终状态到ERROR状态的转换规则：
++ 最终状态到ERROR状态的转换规则：
 FinalState -> ERROR{ch = other}
+
++ ERROR状态的错误处理逻辑是：一直读取字符，直到遇到space|\t|\n字符后再恢复到READY状态
 
 ![数字字面量的状态](asset/png/number.png)
 
 ### 字符字面量的识别状态说明
 
++ ERROR状态后错误处理逻辑：继续读取，直到读取字符串的结尾符号'后，再恢复到READY状态。
+
 ![字符字面量的状态](asset/png/char.png)
 
 ### 字符串字面量的识别状态说明
+
++ ERROR状态后错误处理逻辑：继续读取，直到读取字符串的结尾符号"后，再恢复到READY状态。
 
 ![字符串字面量的状态](asset/png/string.png)
 

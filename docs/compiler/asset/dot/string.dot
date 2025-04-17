@@ -1,17 +1,18 @@
-// 字符串字面量的转换图
-digraph LexcialString{
-    Ready       [shape=circle,    fontcolor=black, fillcolor=purple,      style=filled, color=purple];
-    Error       [shape=circle,    fontcolor=black, fillcolor=red,         style=filled, color=red   ];
-    _String     [shape=diamond,   fontcolor=black, fillcolor="#f08a5d",   style=filled, color="#f08a5d"];
-    String      [shape=box,       fontcolor=black, fillcolor="#08d9d6",   style=filled, color="#08d9d6"];
-    EscString   [shape=box,       fontcolor=black, fillcolor="#08d9d6",   style=filled, color="#08d9d6"];
+digraph LexerString {
+    READY;
+    ERROR;
+    STRING;
+    _STRING;
+    _ESC_STRING;
 
-    Ready               -> _String               [label="\"",             color="#112d4e", fontcolor="#ff2e63"];
-    _String             -> Error                 [label="\\n",            color="#112d4e", fontcolor="#ff2e63"];
-    _String             -> EscString             [label="\\",             color="#112d4e", fontcolor="#ff2e63"];
-    _String             -> String                [label="\"",             color="#112d4e", fontcolor="#ff2e63"];
-    _String             -> _String               [label="ch",             color="#112d4e", fontcolor="#ff2e63"];
-    String              -> Ready                 [label="ch",             color="#112d4e", fontcolor="#ff2e63"];
-    EscString           -> _String               [label="abfnrtv\"\\",    color="#112d4e", fontcolor="#ff2e63"];
-    EscString           -> Error                 [label="ch",             color="#112d4e", fontcolor="#ff2e63"];
+    READY       ->  _STRING     [label="\""];
+    _STRING     ->  _ESC_STRING [label="\\"];
+    _STRING     ->  STRING      [label="\""];
+    _STRING     ->  ERROR       [label="\\n"];
+    _STRING     ->  _STRING     [label="other"];
+
+    _ESC_STRING ->  _STRING     [label="abfnrtv\\\""];
+    _ESC_STRING ->  ERROR       [label="other"];
+
+    STRING      ->  READY       [label="other"];
 }

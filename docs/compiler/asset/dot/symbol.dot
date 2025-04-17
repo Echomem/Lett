@@ -1,92 +1,14 @@
 // 定义其他字符
-digraph LexcialSymbol {
-    Ready               [shape=circle,    fontcolor=black, fillcolor=purple,      style=filled, color=purple];
-    Error               [shape=circle,    fontcolor=black, fillcolor=red,         style=filled, color=red   ];
-    OP_ADD              [shape=box,       fontcolor=black, fillcolor="#08d9d6",   style=filled, color="#08d9d6"];
-    OP_INC              [shape=box,       fontcolor=black, fillcolor="#08d9d6",   style=filled, color="#08d9d6"];
-    OP_ADD_ASSIGN       [shape=box,       fontcolor=black, fillcolor="#08d9d6",   style=filled, color="#08d9d6"];
-    OP_SUB              [shape=box,       fontcolor=black, fillcolor="#08d9d6",   style=filled, color="#08d9d6"];
-    OP_SUB_ASSIGN       [shape=box,       fontcolor=black, fillcolor="#08d9d6",   style=filled, color="#08d9d6"];
-    OP_DEC              [shape=box,       fontcolor=black, fillcolor="#08d9d6",   style=filled, color="#08d9d6"];
-    OP_MUL              [shape=box,       fontcolor=black, fillcolor="#08d9d6",   style=filled, color="#08d9d6"];
-    OP_MUL_ASSIGN       [shape=box,       fontcolor=black, fillcolor="#08d9d6",   style=filled, color="#08d9d6"];
-    OP_DIV              [shape=box,       fontcolor=black, fillcolor="#08d9d6",   style=filled, color="#08d9d6"];
-    OP_DIV_ASSIGN       [shape=box,       fontcolor=black, fillcolor="#08d9d6",   style=filled, color="#08d9d6"];
-    _SINGLINE_COMMENT   [shape=diamond,   fontcolor=black, fillcolor="#f08a5d",   style=filled, color="#f08a5d"];
-    SINGLINE_COMMENT    [shape=box,       fontcolor=black, fillcolor="#08d9d6",   style=filled, color="#08d9d6"];
-    _MUILTLINE_COMMENT  [shape=diamond,   fontcolor=black, fillcolor="#f08a5d",   style=filled, color="#f08a5d"];
-    _MUILTLINE_COMMENT_E[shape=diamond,   fontcolor=black, fillcolor="#f08a5d",   style=filled, color="#f08a5d"];
-    MUILTLINE_COMMENT   [shape=box,       fontcolor=black, fillcolor="#08d9d6",   style=filled, color="#08d9d6"];
+digraph LexerSymbol {
+    READY;
+    OP_ADD;
+    OP_INC;
+    OP_ADD_ASSIGN;
 
-    _OP_NOT_EQUAL       [shape=diamond,   fontcolor=black, fillcolor="#f08a5d",   style=filled, color="#f08a5d"];
-    OP_NOT_EQUAL        [shape=box,       fontcolor=black, fillcolor="#08d9d6",   style=filled, color="#08d9d6"];
-    /*
-    OP_MOD              [shape=box,       fontcolor=black, fillcolor="#08d9d6",   style=filled, color="#08d9d6"];
-    OP_MOD_ASSIGN       [shape=box,       fontcolor=black, fillcolor="#08d9d6",   style=filled, color="#08d9d6"];
-    OP_ASSIGN           [shape=box,       fontcolor=black, fillcolor="#08d9d6",   style=filled, color="#08d9d6"];
-    OP_EQUAL            [shape=box,       fontcolor=black, fillcolor="#08d9d6",   style=filled, color="#08d9d6"];
-    OP_BIT_AND          [shape=box,       fontcolor=black, fillcolor="#08d9d6",   style=filled, color="#08d9d6"];
-    OP_BIT_AND_ASSIGN   [shape=box,       fontcolor=black, fillcolor="#08d9d6",   style=filled, color="#08d9d6"];
-    OP_AND              [shape=box,       fontcolor=black, fillcolor="#08d9d6",   style=filled, color="#08d9d6"];
-    OP_BIT_OR           [shape=box,       fontcolor=black, fillcolor="#08d9d6",   style=filled, color="#08d9d6"];
-    OP_BIT_OR_ASSIGN    [shape=box,       fontcolor=black, fillcolor="#08d9d6",   style=filled, color="#08d9d6"];
-    OP_OR               [shape=box,       fontcolor=black, fillcolor="#08d9d6",   style=filled, color="#08d9d6"];
-    OP_BIT_NOT          [shape=box,       fontcolor=black, fillcolor="#08d9d6",   style=filled, color="#08d9d6"];
-    OP_BIT_XOR          [shape=box,       fontcolor=black, fillcolor="#08d9d6",   style=filled, color="#08d9d6"];
-    OP_GREAT            [shape=box,       fontcolor=black, fillcolor="#08d9d6",   style=filled, color="#08d9d6"];
-    OP_GREAT_EQUAL      [shape=box,       fontcolor=black, fillcolor="#08d9d6",   style=filled, color="#08d9d6"];
-    OP_LESS             [shape=box,       fontcolor=black, fillcolor="#08d9d6",   style=filled, color="#08d9d6"];
-    OP_LESS_EQUAL       [shape=box,       fontcolor=black, fillcolor="#08d9d6",   style=filled, color="#08d9d6"];
-    OP_BIT_SHIFT_LEFT   [shape=box,       fontcolor=black, fillcolor="#08d9d6",   style=filled, color="#08d9d6"];
-    LEFT_PARENT         [shape=box,       fontcolor=black, fillcolor="#08d9d6",   style=filled, color="#08d9d6"];
-    RIGHT_PARENT        [shape=box,       fontcolor=black, fillcolor="#08d9d6",   style=filled, color="#08d9d6"];
-    LEFT_BRACKET        [shape=box,       fontcolor=black, fillcolor="#08d9d6",   style=filled, color="#08d9d6"];
-    RIGHT_BRACKET       [shape=box,       fontcolor=black, fillcolor="#08d9d6",   style=filled, color="#08d9d6"];
-    LEFT_BRACE          [shape=box,       fontcolor=black, fillcolor="#08d9d6",   style=filled, color="#08d9d6"];
-    RIGHT_BRACE         [shape=box,       fontcolor=black, fillcolor="#08d9d6",   style=filled, color="#08d9d6"];
-    COMMA               [shape=box,       fontcolor=black, fillcolor="#08d9d6",   style=filled, color="#08d9d6"];
-    SEMI_COLON          [shape=box,       fontcolor=black, fillcolor="#08d9d6",   style=filled, color="#08d9d6"];
-    DOT                 [shape=box,       fontcolor=black, fillcolor="#08d9d6",   style=filled, color="#08d9d6"];
-    COLON               [shape=box,       fontcolor=black, fillcolor="#08d9d6",   style=filled, color="#08d9d6"];
-    DOUBLE_COLON        [shape=box,       fontcolor=black, fillcolor="#08d9d6",   style=filled, color="#08d9d6"];
-    */
-
-    Ready               -> OP_ADD               [label="+",     color="#112d4e", fontcolor="#ff2e63"];
-    OP_ADD              -> Ready                [label="ch",    color="#112d4e", fontcolor="#ff2e63"];
-    OP_ADD              -> OP_INC               [label="+",     color="#112d4e", fontcolor="#ff2e63"];
-    OP_INC              -> Ready                [label="ch",    color="#112d4e", fontcolor="#ff2e63"];
-    OP_ADD              -> OP_ADD_ASSIGN        [label="=",     color="#112d4e", fontcolor="#ff2e63"];
-    OP_ADD_ASSIGN       -> Ready                [label="ch",    color="#112d4e", fontcolor="#ff2e63"];
-
-    Ready               -> OP_SUB               [label="-",     color="#112d4e", fontcolor="#ff2e63"];
-    OP_SUB              -> Ready                [label="ch",    color="#112d4e", fontcolor="#ff2e63"];
-    OP_SUB              -> OP_DEC               [label="-",     color="#112d4e", fontcolor="#ff2e63"];
-    OP_DEC              -> Ready                [label="ch",    color="#112d4e", fontcolor="#ff2e63"];
-    OP_SUB              -> OP_SUB_ASSIGN        [label="=",     color="#112d4e", fontcolor="#ff2e63"];
-    OP_SUB_ASSIGN       -> Ready                [label="ch",    color="#112d4e", fontcolor="#ff2e63"];
-
-    Ready               -> OP_MUL               [label="*",     color="#112d4e", fontcolor="#ff2e63"];
-    OP_MUL              -> Ready                [label="ch",    color="#112d4e", fontcolor="#ff2e63"];
-    OP_MUL              -> OP_MUL_ASSIGN        [label="=",     color="#112d4e", fontcolor="#ff2e63"];
-    OP_MUL_ASSIGN       -> Ready                [label="ch",    color="#112d4e", fontcolor="#ff2e63"];
-
-    Ready               -> OP_DIV               [label="/",     color="#112d4e", fontcolor="#ff2e63"];
-    OP_DIV              -> Ready                [label="ch",    color="#112d4e", fontcolor="#ff2e63"];
-    OP_DIV              -> OP_DIV_ASSIGN        [label="=",     color="#112d4e", fontcolor="#ff2e63"];
-    OP_DIV_ASSIGN       -> Ready                [label="ch",    color="#112d4e", fontcolor="#ff2e63"];
-    OP_DIV              -> _SINGLINE_COMMENT    [label="/",     color="#112d4e", fontcolor="#ff2e63"];
-    _SINGLINE_COMMENT   -> _SINGLINE_COMMENT    [label="ch",    color="#112d4e", fontcolor="#ff2e63"];
-    _SINGLINE_COMMENT   -> SINGLINE_COMMENT     [label="\\n",   color="#112d4e", fontcolor="#ff2e63"];
-    SINGLINE_COMMENT    -> Ready                [label="ch",    color="#112d4e", fontcolor="#ff2e63"];
-    OP_DIV              -> _MUILTLINE_COMMENT   [label="*",     color="#112d4e", fontcolor="#ff2e63"];
-    _MUILTLINE_COMMENT  -> _MUILTLINE_COMMENT   [label="ch",    color="#112d4e", fontcolor="#ff2e63"];
-    _MUILTLINE_COMMENT  -> _MUILTLINE_COMMENT_E [label="*",     color="#112d4e", fontcolor="#ff2e63"];
-    _MUILTLINE_COMMENT_E-> MUILTLINE_COMMENT    [label="/",     color="#112d4e", fontcolor="#ff2e63"];
-    _MUILTLINE_COMMENT_E-> _MUILTLINE_COMMENT   [label="ch",    color="#112d4e", fontcolor="#ff2e63"];
-    MUILTLINE_COMMENT   -> Ready                [label="ch",    color="#112d4e", fontcolor="#ff2e63"];
-
-    Ready               -> _OP_NOT_EQUAL        [label="!",     color="#112d4e", fontcolor="#ff2e63"];
-    _OP_NOT_EQUAL       -> OP_NOT_EQUAL         [label="=",     color="#112d4e", fontcolor="#ff2e63"];
-    _OP_NOT_EQUAL       -> Error                [label="ch",    color="#112d4e", fontcolor="#ff2e63"];
-    OP_NOT_EQUAL        -> Ready                [label="ch",    color="#112d4e", fontcolor="#ff2e63"];
+    READY           -> OP_ADD           [label="+"];
+    OP_ADD          -> READY            [label="other"];
+    OP_ADD          -> OP_INC           [label="+"];
+    OP_INC          -> READY            [label="other"];
+    OP_ADD          -> OP_ADD_ASSIGN    [label="="];
+    OP_ADD_ASSIGN   -> READY            [label="other"];
 }
