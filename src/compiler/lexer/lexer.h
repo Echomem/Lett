@@ -16,6 +16,13 @@
 #define UNICODE_CHAR_INDEX  (LEXER_USED_CHAR_LEN + 0)
 #define LEXER_CHARSET_SIZE  (LEXER_USED_CHAR_LEN + 1)  
 
+#define BIN_CHARS "01"
+#define OCT_CHARS "01234567"
+#define HEX_CHARS "0123456789abcdefABCDEF"
+#define DEC_CHARS "0123456789"
+// 数字分割符，在接受数字状态，输入以下任一字符，完成字符输入状态
+#define NUMBER_SEPERATOR    " \t\n,:;()[]{}+-*/%&|^!~<>='\""
+
 namespace Lett {
     // 词法分析器的状态机，定义了所有可能的状态
     #define TKTP_MEMBER(m, s) m,
@@ -25,9 +32,9 @@ namespace Lett {
         LETT_TKTP_BASIC
         LETT_TKTP_OPERATOR
         LETT_TKTP_SEPERATOR
-        _HEX_S,
-        _OCT,
-        _BIN,
+        _HEX_,
+        _OCT_,
+        _BIN_,
         _STRING,
         ESCSTRING,
         _CHAR_S,

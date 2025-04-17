@@ -127,29 +127,26 @@ namespace Lett {
         _setup_state_transform(LexerState::ESCCHAR, LexerState::_CHAR, "abfnrtv'\\");
 
         // TODO: setup Number
-        _setup_default_state_transform(LexerState::ZERO, LexerState::READY);
-        _setup_state_transform(LexerState::ZERO, LexerState::DEC_INTEGER, "123456789");
-        _setup_state_transform(LexerState::ZERO, LexerState::_HEX_S, "xX");
-        _setup_state_transform(LexerState::ZERO, LexerState::_OCT, "oO");
-        _setup_state_transform(LexerState::ZERO, LexerState::_BIN, "bB");
+        _setup_state_transform(LexerState::ZERO, LexerState::DEC_INTEGER, DEC_CHARS);
+        _setup_state_transform(LexerState::ZERO, LexerState::_HEX_, "xX");
+        _setup_state_transform(LexerState::ZERO, LexerState::_OCT_, "oO");
+        _setup_state_transform(LexerState::ZERO, LexerState::_BIN_, "bB");
         _setup_state_transform(LexerState::ZERO, LexerState::FLOAT, ".");
-        _setup_default_state_transform(LexerState::_HEX_S, LexerState::ERROR);
-        _setup_state_transform(LexerState::_HEX_S, LexerState::HEX_INTEGER, "0123456789abcdefABCDEF");
-        _setup_default_state_transform(LexerState::_OCT, LexerState::ERROR);
-        _setup_state_transform(LexerState::_OCT, LexerState::OCT_INTEGER, "01234567");
-        _setup_default_state_transform(LexerState::_BIN, LexerState::ERROR);
-        _setup_state_transform(LexerState::_BIN, LexerState::BIN_INTEGER, "01");
-        _setup_default_state_transform(LexerState::DEC_INTEGER, LexerState::READY);
-        _setup_state_transform(LexerState::DEC_INTEGER, LexerState::DEC_INTEGER, "0123456789");
+        _setup_state_transform(LexerState::ZERO, LexerState::READY, NUMBER_SEPERATOR);
+        _setup_state_transform(LexerState::_HEX_, LexerState::HEX_INTEGER, HEX_CHARS);
+        _setup_state_transform(LexerState::_OCT_, LexerState::OCT_INTEGER, OCT_CHARS);
+        _setup_state_transform(LexerState::_BIN_, LexerState::BIN_INTEGER, BIN_CHARS);
+        _setup_state_transform(LexerState::HEX_INTEGER, LexerState::HEX_INTEGER, HEX_CHARS);
+        _setup_state_transform(LexerState::HEX_INTEGER, LexerState::READY, NUMBER_SEPERATOR);
+        _setup_state_transform(LexerState::OCT_INTEGER, LexerState::OCT_INTEGER, OCT_CHARS);
+        _setup_state_transform(LexerState::OCT_INTEGER, LexerState::READY, NUMBER_SEPERATOR);
+        _setup_state_transform(LexerState::BIN_INTEGER, LexerState::BIN_INTEGER, BIN_CHARS);
+        _setup_state_transform(LexerState::BIN_INTEGER, LexerState::READY, NUMBER_SEPERATOR);
+        _setup_state_transform(LexerState::DEC_INTEGER, LexerState::DEC_INTEGER, DEC_CHARS);
         _setup_state_transform(LexerState::DEC_INTEGER, LexerState::FLOAT, ".");
-        _setup_default_state_transform(LexerState::FLOAT, LexerState::READY);
-        _setup_state_transform(LexerState::FLOAT, LexerState::FLOAT, "0123456789");
-        _setup_default_state_transform(LexerState::HEX_INTEGER, LexerState::READY);
-        _setup_state_transform(LexerState::HEX_INTEGER, LexerState::HEX_INTEGER, "0123456789abcdefABCDEF");
-        _setup_default_state_transform(LexerState::OCT_INTEGER, LexerState::READY);
-        _setup_state_transform(LexerState::OCT_INTEGER, LexerState::OCT_INTEGER, "01234567");
-        _setup_default_state_transform(LexerState::BIN_INTEGER, LexerState::READY);
-        _setup_state_transform(LexerState::BIN_INTEGER, LexerState::BIN_INTEGER, "01");
+        _setup_state_transform(LexerState::DEC_INTEGER, LexerState::READY, NUMBER_SEPERATOR);
+        _setup_state_transform(LexerState::FLOAT, LexerState::FLOAT, DEC_CHARS);
+        _setup_state_transform(LexerState::FLOAT, LexerState::READY, NUMBER_SEPERATOR);
 
         // TODO: setup Symbols
         for (const auto& pair : Token::getTokenTable()) {
