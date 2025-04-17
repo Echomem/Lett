@@ -165,18 +165,17 @@ namespace Lett {
             }
         }
         // 处理单行注释和多行注释
+        _setup_state_transform(LexerState::OP_DIV, LexerState::SINGLINE_COMMENT, "/");
         _setup_state_transform(LexerState::OP_DIV, LexerState::_MUILTLINE_COMMENT, "*");
-        _setup_state_transform(LexerState::OP_DIV, LexerState::_SINGLINE_COMMENT, "/");
+
+        _setup_default_state_transform(LexerState::SINGLINE_COMMENT, LexerState::SINGLINE_COMMENT);
+        _setup_state_transform(LexerState::SINGLINE_COMMENT, LexerState::READY, "\n");
 
         _setup_default_state_transform(LexerState::_MUILTLINE_COMMENT, LexerState::_MUILTLINE_COMMENT);
         _setup_state_transform(LexerState::_MUILTLINE_COMMENT, LexerState::_MUILTLINE_COMMENT_E, "*");
         _setup_default_state_transform(LexerState::_MUILTLINE_COMMENT_E, LexerState::_MUILTLINE_COMMENT);
         _setup_state_transform(LexerState::_MUILTLINE_COMMENT_E, LexerState::MUILTLINE_COMMENT, "/");
         _setup_default_state_transform(LexerState::MUILTLINE_COMMENT, LexerState::READY);
-
-        _setup_default_state_transform(LexerState::_SINGLINE_COMMENT, LexerState::_SINGLINE_COMMENT);
-        _setup_state_transform(LexerState::_SINGLINE_COMMENT, LexerState::SINGLINE_COMMENT, "\n");
-        _setup_default_state_transform(LexerState::SINGLINE_COMMENT, LexerState::READY);
     }
 
     LexerState LexicalAnalyzer::_get_next_state(char ch) {

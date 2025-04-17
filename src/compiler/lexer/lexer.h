@@ -40,11 +40,10 @@ namespace Lett {
         _CHAR_S,
         _CHAR,
         ESCCHAR,
-        _SINGLINE_COMMENT   ,
-        SINGLINE_COMMENT    ,
-        _MUILTLINE_COMMENT  ,
+        SINGLINE_COMMENT,
+        _MUILTLINE_COMMENT,
         _MUILTLINE_COMMENT_E,
-        MUILTLINE_COMMENT   ,
+        MUILTLINE_COMMENT,
         ERROR
     };
     #undef TKTP_MEMBER

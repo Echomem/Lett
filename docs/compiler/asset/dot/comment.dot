@@ -1,0 +1,18 @@
+digraph LexerComment {
+    READY;
+    OP_DIV;
+    SINGLINE_COMMENT;
+    MUILTLINE_COMMENT;
+    _MUILTLINE_COMMENT;
+
+    READY               -> OP_DIV               [label="/"];
+    OP_DIV              -> SINGLINE_COMMENT     [label="/"];
+    OP_DIV              -> _MUILTLINE_COMMENT   [label="*"];
+    _MUILTLINE_COMMENT  -> _MUILTLINE_COMMENT   [label="other"];
+    _MUILTLINE_COMMENT  -> _MUILTLINE_COMMENT_E [label="*"];
+    _MUILTLINE_COMMENT_E->_MUILTLINE_COMMENT    [label="other"];
+    _MUILTLINE_COMMENT_E-> MUILTLINE_COMMENT    [label="/"];
+    MUILTLINE_COMMENT   -> READY                [label="other"];
+    SINGLINE_COMMENT    -> READY                [label="\\n"];
+    SINGLINE_COMMENT    -> SINGLINE_COMMENT     [label="other"];
+}

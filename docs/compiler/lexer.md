@@ -34,13 +34,39 @@
 + 词法分析器主要是通过类`LexicalAnalyzer`来实现的，该类本质上是一个有限状态机。
   
 ## 词法分析器的状态
-### 数字字面量的识别状态
+### 数字字面量的识别状态说明
+
+定义最终状态：
+FinalState = ZERO | DEC_INTEGER | FLOAT | HEX_INTEGER | OCT_INTEGER | BIN_INTEGER
+
+最终状态到READY状态的转换规则：
+FinalState -> READY{ch = space | \t | \n | operator | seperator}
+
+最终状态到ERROR状态的转换规则：
+FinalState -> ERROR{ch = other}
+
 ![数字字面量的状态](asset/png/number.png)
-### 字符字面量的识别状态
+
+### 字符字面量的识别状态说明
+
 ![字符字面量的状态](asset/png/char.png)
-### 字符串字面量的识别状态
+
+### 字符串字面量的识别状态说明
+
 ![字符串字面量的状态](asset/png/string.png)
-### 标志符的识别状态
+
+### 标志符的识别状态说明
+
 ![标识符的状态](asset/png/ident.png)
+
 ### 其他符号的识别状态
+
 ![其他符号的状态](asset/png/symbol.png)
+
+### 注释符号的识别状态说明
+
+支持两种注释：
+- 单行注释符号：// 开头的至行末尾均为注释
+- 多行注释符号：/* 包裹的所有字符均为注释，可跨行 */
+
+![注释符号的状态](asset/png/comment.png)
